@@ -1,0 +1,4 @@
+"DeviceMonitor version 1.0\n"
+"Copyright (C) 2017 Virtium LLC\n"
+"All rights reserved\n"
+"For support or question, contact software.support@virtium.com\n"

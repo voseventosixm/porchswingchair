@@ -1,0 +1,6 @@
+MAP_ITEM( true, "ipecho.net/plain")
+MAP_ITEM( true, "icanhazip.com")
+MAP_ITEM( true, "ident.me")
+MAP_ITEM( true, "bot.whatismyipaddress.com")
+MAP_ITEM( true, "ifconfig.co")
+MAP_ITEM( true, "ifconfig.me/ip")

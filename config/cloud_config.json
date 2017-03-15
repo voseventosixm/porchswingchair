@@ -1,0 +1,13 @@
+{
+    "aws" : {
+        "hostName" : "a243uabiez3zv6.iot.us-east-1.amazonaws.com",
+        "clientID" : "sample_client_id_03",
+        "thingName" : "Phu_DartTest01",
+        "rootCA" :  "./devinfo/cloud/aws/rootCA.crt",
+        "cert" :    "./devinfo/cloud/aws/4258e55272-certificate.pem.crt",
+        "privKey" : "./devinfo/cloud/aws/4258e55272-private.pem.key",
+        "mqttPort" : 8883
+    },
+
+    "activeCloud" : "aws"
+}
