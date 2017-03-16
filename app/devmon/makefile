@@ -60,6 +60,8 @@ UTIL_SRC_FILES += $(CORE)/StringUtil.cpp \
                   $(CORE)/CoreUtil.cpp     $(CORE)/HexFormatter.cpp \
                   $(CORE)/MiscUtil.cpp     $(CORE)/SmartUtil.cpp
 
+UTIL_SRC_FILES += $(MISC)/rjaccess.cpp     $(MISC)/fileutil.cpp
+
 UTIL_SRC_FILES += $(GEOIP)/geoip.cpp       $(GEOIP)/geoip_city.cpp $(GEOIP)/geoip_deprecated.cpp \
                   $(GEOIP)/region_name.cpp $(GEOIP)/time_zone.cpp  $(GEOIP)/geoip_interface.cpp
 

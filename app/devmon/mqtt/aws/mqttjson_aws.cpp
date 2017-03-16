@@ -13,10 +13,7 @@
 #include "geoip_interface.h"
 #include "vtview_interface.h"
 
-#include "document.h"
-#include "prettywriter.h"
-
-using namespace rapidjson;
+#include "rjaccess.h"
 
 // --------------------------------------------------------------------------
 // build payload json data

@@ -84,6 +84,8 @@ OTHER_FILES += \
 CONFIG(UTILITY)
 {
 HEADERS += \
+    utility/misc/fileutil.h \
+    utility/misc/rjaccess.h \
     utility/misc/stdmacro.h \
     utility/misc/stdheader.h \
     utility/misc/sysheader.h \
@@ -111,6 +113,8 @@ HEADERS += \
     utility/geoip/geoip_interface.h
 
 SOURCES += \
+    utility/misc/fileutil.cpp \
+    utility/misc/rjaccess.cpp \
     \
     utility/core/CommonStruct.cpp \
     utility/core/CoreData.cpp \

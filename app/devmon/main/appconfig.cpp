@@ -1,18 +1,19 @@
 #include "stdmacro.h"
+#include "rjaccess.h"
 
 #include "appdata.h"
 #include "apputil.h"
 #include "appconfig.h"
-#include "document.h"
-#include "prettywriter.h"
-
-using namespace rapidjson;
 
 #define MAP_ITEM(name, keyval, defval) \
     const char* KEY_##name = keyval; \
     const char* DEF_##name = defval;
 #include "configkey.def"
 #undef MAP_ITEM
+
+#define RJ_GET(src, keyword, keyvalue) \
+    if (!rj_get(src, keyword, keyvalue)) \
+        { LOGMSG("Cannot parse %s", keyword); break; }
 
 // -----------------------------------------------------------------
 // Generate config data
@@ -174,31 +175,27 @@ bool parse_devmon_config()
 {
     s_app_data* dptr = get_data_ptr();
 
-    ifstream istr;
-    stringstream sstr;
-
-    istr.open(dptr->conf_app.c_str(), ios::binary);
-    sstr << istr.rdbuf();
-
-    LOGSTR("devmon config content: %s", sstr.str());
-
     bool status = false;
     do {
         Document doc;
-        if (true == doc.Parse(sstr.str().c_str()).HasParseError()) break;
-        if (false == doc.IsObject()) break;
+
+        ifstream istr; istr.open(dptr->conf_app.c_str(), ios::binary);
+        if (false == istr.is_open())
+            { LOGSTR("Cannot open devmon config file: %s", dptr->conf_app); break; }
+
+        stringstream sstr; sstr << istr.rdbuf();
+        if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
+            { LOGMSG("Cannot parse json document:\n%s", doc.GetString()); break; }
 
         s_devmon_config& conf = dptr->conf.devmon;
 
-        RJ_GETSTR(doc, KEY_SHMEM_NAME, conf.shmem_name);
-        RJ_GETSTR(doc, KEY_SHMEM_VERSION, conf.shmem_version);
-        RJ_GETBLN(doc, KEY_DEBUG_MODE, conf.debug_mode);
-
-        RJ_GETSTR(doc, KEY_GEOIP_PATH, conf.geoip_path);
-
-        RJ_GETSTR(doc, KEY_CLOUD_CONFIG, conf.conf_cloud);
-        RJ_GETSTR(doc, KEY_DEVICE_CONFIG, conf.conf_device);
-        RJ_GETSTR(doc, KEY_IDENTIFY_CONFIG, conf.conf_identify);
+        RJ_GET(doc, KEY_SHMEM_NAME, conf.shmem_name);
+        RJ_GET(doc, KEY_SHMEM_VERSION, conf.shmem_version);
+        RJ_GET(doc, KEY_DEBUG_MODE, conf.debug_mode);
+        RJ_GET(doc, KEY_GEOIP_PATH, conf.geoip_path);
+        RJ_GET(doc, KEY_CLOUD_CONFIG, conf.conf_cloud);
+        RJ_GET(doc, KEY_DEVICE_CONFIG, conf.conf_device);
+        RJ_GET(doc, KEY_IDENTIFY_CONFIG, conf.conf_identify);
 
         dptr->conf_cloud = conf.conf_cloud;
         dptr->conf_device = conf.conf_device;
@@ -229,6 +226,8 @@ bool parse_devmon_config()
         #undef MAP_ITEM
     }
 
+    LOGMSGIF(status, "Application config:\n %s", to_string(dptr->conf.devmon).c_str());
+
     LOGMSGIF(!status, "Cannot parse devmon config");
 
     return status;
@@ -238,32 +237,34 @@ bool parse_cloud_config()
 {
     s_app_data* dptr = get_data_ptr();
 
-    ifstream istr;
-    stringstream sstr;
-
-    istr.open(dptr->conf_cloud.c_str(), ios::binary);
-    sstr << istr.rdbuf();
-
     bool status = false;
     do {
         Document doc;
-        if (true == doc.Parse(sstr.str().c_str()).HasParseError()) break;
-        if (false == doc.IsObject()) break;
+
+        ifstream istr;
+        istr.open(dptr->conf_cloud.c_str(), ios::binary);
+        if (false == istr.is_open())
+            { LOGSTR("Cannot open cloud config file: %s", dptr->conf_cloud); break; }
+
+        stringstream sstr;
+        sstr << istr.rdbuf();
+        if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
+            { LOGMSG("Cannot parse json document:\n%s", doc.GetString()); break; }
 
         s_cloud_config& conf = dptr->conf.cloud;
 
-        RJ_GETSTR(doc, KEY_ACTIVE_CLOUD, conf.cloud_name);
+        RJ_GET(doc, KEY_ACTIVE_CLOUD, conf.cloud_name);
 
         const Value& obj = doc[conf.cloud_name.c_str()];
         if (false == obj.IsObject()) break;
 
-        RJ_GETSTR(obj, KEY_HOST_NAME, conf.host_name);
-        RJ_GETSTR(obj, KEY_CLIENT_ID, conf.client_id);
-        RJ_GETSTR(obj, KEY_THING_NAME, conf.thing_name);
-        RJ_GETSTR(obj, KEY_CERT_FILE, conf.cert_filename);
-        RJ_GETSTR(obj, KEY_ROOTCA_FILE, conf.rootca_filename);
-        RJ_GETSTR(obj, KEY_PRIVKEY_FILE, conf.privkey_filename);
-        RJ_GETINT(obj, KEY_MQTT_PORT, conf.mqtt_port);
+        RJ_GET(obj, KEY_HOST_NAME, conf.host_name);
+        RJ_GET(obj, KEY_CLIENT_ID, conf.client_id);
+        RJ_GET(obj, KEY_THING_NAME, conf.thing_name);
+        RJ_GET(obj, KEY_CERT_FILE, conf.cert_filename);
+        RJ_GET(obj, KEY_ROOTCA_FILE, conf.rootca_filename);
+        RJ_GET(obj, KEY_PRIVKEY_FILE, conf.privkey_filename);
+        RJ_GET(obj, KEY_MQTT_PORT, conf.mqtt_port);
 
         status = true;
     } while(0);
@@ -304,24 +305,24 @@ bool parse_device_config()
 {
     s_app_data* dptr = get_data_ptr();
 
-    ifstream istr;
-    stringstream sstr;
-
-    istr.open(dptr->conf_device.c_str(), ios::binary);
-    sstr << istr.rdbuf();
-
     bool status = false;
     do {
         Document doc;
-        if (true == doc.Parse(sstr.str().c_str()).HasParseError()) break;
-        if (false == doc.IsObject()) break;
+
+        ifstream istr; istr.open(dptr->conf_device.c_str(), ios::binary);
+        if (false == istr.is_open())
+            { LOGSTR("Cannot open device config file: %s", dptr->conf_device); break; }
+
+        stringstream sstr; sstr << istr.rdbuf();
+        if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
+            { LOGMSG("Cannot parse json document:\n%s", doc.GetString()); break; }
 
         s_device_config& conf = dptr->conf.device;
 
-        RJ_GETSTR(doc, KEY_DEVICE_NAME, conf.device_name);
-        RJ_GETSTR(doc, KEY_GROUP_NAME, conf.group_name);
-        RJ_GETSTR(doc, KEY_LOCATION, conf.location);
-        RJ_GETSTR(doc, KEY_COUNTRY, conf.country);
+        RJ_GET(doc, KEY_DEVICE_NAME, conf.device_name);
+        RJ_GET(doc, KEY_GROUP_NAME, conf.group_name);
+        RJ_GET(doc, KEY_LOCATION, conf.location);
+        RJ_GET(doc, KEY_COUNTRY, conf.country);
 
         status = true;
     } while(0);
@@ -335,24 +336,24 @@ bool parse_identify_config()
 {
     s_app_data* dptr = get_data_ptr();
 
-    ifstream istr;
-    stringstream sstr;
-
-    istr.open(dptr->conf_identify.c_str(), ios::binary);
-    sstr << istr.rdbuf();
-
     bool status = false;
     do {
         Document doc;
-        if (true == doc.Parse(sstr.str().c_str()).HasParseError()) break;
-        if (false == doc.IsObject()) break;
+
+        ifstream istr; istr.open(dptr->conf_identify.c_str(), ios::binary);
+        if (false == istr.is_open())
+            { LOGSTR("Cannot open device identify file: %s", dptr->conf_identify); break; }
+
+        stringstream sstr; sstr << istr.rdbuf();
+        if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
+            { LOGMSG("Cannot parse json document:\n%s", doc.GetString()); break; }
 
         s_identify_config& conf = dptr->conf.identify;
 
-        RJ_GETSTR(doc, KEY_MODEL, conf.model_string);
-        RJ_GETSTR(doc, KEY_SERIAL, conf.serial_string);
-        RJ_GETSTR(doc, KEY_FIRMWARE, conf.firmware_string);
-        RJ_GETDBL(doc, KEY_CAPACITY, conf.capacity);
+        RJ_GET(doc, KEY_MODEL, conf.model_string);
+        RJ_GET(doc, KEY_SERIAL, conf.serial_string);
+        RJ_GET(doc, KEY_FIRMWARE, conf.firmware_string);
+        RJ_GET(doc, KEY_CAPACITY, conf.capacity);
 
         status = true;
     } while(0);
@@ -489,6 +490,7 @@ string to_string(const s_devmon_config& conf)
     RJ_ADDSTR(KEY_SHMEM_VERSION  ,conf.shmem_version);
     RJ_ADDBLN(KEY_DEBUG_MODE     ,conf.debug_mode);
     RJ_ADDSTR(KEY_CLOUD_CONFIG   ,conf.conf_cloud);
+    RJ_ADDSTR(KEY_DEVICE_CONFIG  ,conf.conf_device);
     RJ_ADDSTR(KEY_IDENTIFY_CONFIG,conf.conf_identify);
     RJ_ADDSTR(KEY_GEOIP_PATH     ,conf.geoip_path);
     RJ_STOP();

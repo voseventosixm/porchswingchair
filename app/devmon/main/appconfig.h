@@ -56,7 +56,6 @@ struct s_devmon_config
     string shmem_version;
 
     bool   debug_mode;
-    string worklog_file;
 
     string geoip_path;
 
