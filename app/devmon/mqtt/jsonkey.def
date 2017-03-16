@@ -1,0 +1,29 @@
+// Cloud configuration keys
+MAP_ITEM(WRITE_AMP,   "WriteAmp"   )
+MAP_ITEM(EST_REMTIME, "EstRemTime" )
+MAP_ITEM(REM_TBW,     "RemTBW"     )
+MAP_ITEM(DATA_WRITTEN,"DataWritten")
+MAP_ITEM(DATA_READ,   "DataRead"   )
+MAP_ITEM(REM_LIFE,    "RemLife"    )
+MAP_ITEM(REM_SPARE,   "RemSpare"   )
+MAP_ITEM(TEMPERATURE, "Temperature")
+
+// Device identify keys
+MAP_ITEM(MODEL,        "model"     )
+MAP_ITEM(SERIAL,       "serial"    )
+MAP_ITEM(FIRMWARE,     "firmware"  )
+MAP_ITEM(CAPACITY,     "capacity"  )
+
+// Device configuration keys
+MAP_ITEM(DEVICE_NAME,  "deviceName")
+MAP_ITEM(GROUP_NAME,   "groupName" )
+MAP_ITEM(LOCATION,     "location"  )
+MAP_ITEM(COUNTRY,      "country"   )
+
+// Device location keys
+MAP_ITEM(THING_NAME,   "thingName" )
+MAP_ITEM(CLIENT_ID,    "clientId"  )
+MAP_ITEM(CITY,         "city"      )
+MAP_ITEM(GEO_COUNTRY,  "geoCountry")
+MAP_ITEM(LADTITUDE,    "ladtitude" )
+MAP_ITEM(LONGTITUDE,   "longtitude")

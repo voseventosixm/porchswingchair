@@ -1,3 +1,2 @@
-devmon
-build-project*
-project/project.pro.user
+output/*
+*.pro.user

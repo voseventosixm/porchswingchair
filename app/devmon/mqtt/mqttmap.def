@@ -1,0 +1,4 @@
+MAP_ITEM(MSG_INVALID,              "Storfly/invalidTopic")
+MAP_ITEM(SUB_GET_VTVIEW_DATA,      "Storfly/getVtViewData")
+MAP_ITEM(SUB_GET_CONNECTED_DEVICE, "Storfly/getConnectedDevice")
+MAP_ITEM(PUB_IAM_CONNECTED_DEVICE, "Storfly/iamConnectedDevice")
