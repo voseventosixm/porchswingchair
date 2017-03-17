@@ -92,7 +92,7 @@ bool init_resource()
     do {
         if (false == init_shmem(&adptr->info.shmem))
         {
-            set_error_state(ERROR_INIT_SHMEM);
+            set_error_code(eCannotInitializeShmem);
             break;
         }
 

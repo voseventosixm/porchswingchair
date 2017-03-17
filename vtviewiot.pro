@@ -24,6 +24,7 @@ INCLUDEPATH += app/devmon/vtview/temp
 
 HEADERS += \
     app/devmon/main/applog.h \
+    app/devmon/main/apperror.h \
     app/devmon/main/appconfig.h \
     app/devmon/main/appdata.h \
     app/devmon/main/appmain.h \
@@ -46,6 +47,7 @@ HEADERS += \
 
 SOURCES += \
     app/devmon/main/applog.cpp \
+    app/devmon/main/apperror.cpp \
     app/devmon/main/appconfig.cpp \
     app/devmon/main/appdata.cpp \
     app/devmon/main/appmain.cpp \
@@ -75,6 +77,7 @@ OTHER_FILES += \
     app/devmon/mqtt/mqttmap.def
 
 OTHER_FILES += \
+    app/devmon/main/errorcode.def \
     config/devmon_config.json \
     config/cloud_config.json \
     config/device_config.json \

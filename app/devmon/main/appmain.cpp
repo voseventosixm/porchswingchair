@@ -31,5 +31,8 @@ int main(int argc, char** argv)
         status = true;
     } while(0);
 
+    s_app_error* estack = get_error_stack();
+    LOGSTRIF(estack->is_error(), "ErrorStack: \n%s", estack->to_string());
+
     return status ? EXIT_SUCCESS : EXIT_FAILURE;
 }

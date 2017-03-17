@@ -54,15 +54,14 @@ void write_string(const string &filename, const string &content)
 // application utilities
 // ------------------------------------------------------
 
-void set_error_state(e_error_state state)
+void set_error_code(e_error_code code)
 {
-    s_app_data* adptr = get_data_ptr();
+    get_error_stack()->push_error(code);
+}
 
-    if (adptr->estate >= state) return;
-
-    adptr->estate = state;
-
-    LOGMSG("ErrorState: %d", adptr->estate);
+void set_error_if(bool cond, e_error_code code)
+{
+    if (cond) set_error_code(code);
 }
 
 void stop_worker_thread()

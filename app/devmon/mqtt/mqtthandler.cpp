@@ -31,7 +31,7 @@ bool start_mqtt_handler()
     int res = pthread_create(&pid, NULL, mqtt_handler_func, NULL);
     if (0 != res)
     {
-        set_error_state(ERROR_MQTT_THREAD);
+        set_error_code(eCannotStartMqttHandler);
         return false;
     }
 

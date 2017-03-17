@@ -7,7 +7,8 @@
 // common utility
 // ------------------------------------------------------
 
-void set_error_state(e_error_state state);
+void set_error_code(e_error_code code);
+void set_error_if(bool cond, e_error_code code);
 
 void stop_worker_thread();
 

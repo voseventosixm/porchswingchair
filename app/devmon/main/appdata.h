@@ -5,19 +5,9 @@
 #include "sysheader.h"
 
 #include "applog.h"
+#include "apperror.h"
 #include "appconfig.h"
 #include "appresource.h"
-
-enum e_error_state
-{
-    ERROR_NONE = 0,
-    ERROR_CONFIG,
-    ERROR_INIT_SHMEM,
-    ERROR_INIT_APPRES,
-    ERROR_MQTT_THREAD,
-
-    ERROR_CLOSE_SHMEM,
-};
 
 enum e_operation_code
 {
@@ -58,10 +48,10 @@ struct s_app_info
 struct s_app_data
 {
     // working info
+    e_operation_code opcode;
+
     s_app_info info;
     s_app_task task;
-    e_error_state estate;
-    e_operation_code opcode;
 
     // configuration info
     s_app_config conf;
@@ -70,6 +60,9 @@ struct s_app_data
     string conf_device;   // json file, working configuration
     string conf_identify; // json file, serial number, device model, ...
     string conf_cloud;    // json file, cloud configuration
+
+    // app logger
+    s_app_error ecode;
 };
 
 extern s_app_data app_data;
@@ -79,5 +72,6 @@ s_app_task* get_task_ptr();
 s_app_info* get_info_ptr();
 s_app_config* get_config_ptr();
 s_mqtt_task* get_mqtt_task();
+s_app_error* get_error_stack();
 
 #endif

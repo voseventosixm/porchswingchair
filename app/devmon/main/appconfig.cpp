@@ -11,9 +11,9 @@
 #include "configkey.def"
 #undef MAP_ITEM
 
-#define RJ_GET(src, keyword, keyvalue) \
+#define RJ_GET(src, keyword, keyvalue, errorcode) \
     if (!rj_get(src, keyword, keyvalue)) \
-        { LOGMSG("Cannot parse %s", keyword); break; }
+        { set_error_code(errorcode); break; }
 
 // -----------------------------------------------------------------
 // Generate config data
@@ -181,21 +181,21 @@ bool parse_devmon_config()
 
         ifstream istr; istr.open(dptr->conf_app.c_str(), ios::binary);
         if (false == istr.is_open())
-            { LOGSTR("Cannot open devmon config file: %s", dptr->conf_app); break; }
+        { set_error_code(eCannotOpenApplicationConfig); break; }
 
         stringstream sstr; sstr << istr.rdbuf();
         if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
-            { LOGMSG("Cannot parse json document:\n%s", doc.GetString()); break; }
+        { set_error_code(eCannotParseApplicationConfigJson); break; }
 
         s_devmon_config& conf = dptr->conf.devmon;
 
-        RJ_GET(doc, KEY_SHMEM_NAME, conf.shmem_name);
-        RJ_GET(doc, KEY_SHMEM_VERSION, conf.shmem_version);
-        RJ_GET(doc, KEY_DEBUG_MODE, conf.debug_mode);
-        RJ_GET(doc, KEY_GEOIP_PATH, conf.geoip_path);
-        RJ_GET(doc, KEY_CLOUD_CONFIG, conf.conf_cloud);
-        RJ_GET(doc, KEY_DEVICE_CONFIG, conf.conf_device);
-        RJ_GET(doc, KEY_IDENTIFY_CONFIG, conf.conf_identify);
+        RJ_GET(doc, KEY_SHMEM_NAME, conf.shmem_name, eShmemNameJsonNotFound);
+        RJ_GET(doc, KEY_SHMEM_VERSION, conf.shmem_version, eShmemVersionJsonNotFound);
+        RJ_GET(doc, KEY_DEBUG_MODE, conf.debug_mode, eDebugModeJsonNotFound);
+        RJ_GET(doc, KEY_GEOIP_PATH, conf.geoip_path, eGeoipPathJsonNotFound);
+        RJ_GET(doc, KEY_CLOUD_CONFIG, conf.conf_cloud, eCloudConfigJsonNotFound);
+        RJ_GET(doc, KEY_DEVICE_CONFIG, conf.conf_device, eDeviceConfigJsonNotFound);
+        RJ_GET(doc, KEY_IDENTIFY_CONFIG, conf.conf_identify, eDeviceIdentifyJsonNotFound);
 
         dptr->conf_cloud = conf.conf_cloud;
         dptr->conf_device = conf.conf_device;
@@ -228,7 +228,7 @@ bool parse_devmon_config()
 
     LOGMSGIF(status, "Application config:\n %s", to_string(dptr->conf.devmon).c_str());
 
-    LOGMSGIF(!status, "Cannot parse devmon config");
+    set_error_if(!status, eInvalidApplicationConfig);
 
     return status;
 }
@@ -244,27 +244,27 @@ bool parse_cloud_config()
         ifstream istr;
         istr.open(dptr->conf_cloud.c_str(), ios::binary);
         if (false == istr.is_open())
-            { LOGSTR("Cannot open cloud config file: %s", dptr->conf_cloud); break; }
+        { set_error_code(eCannotOpenCloudConfig); break; }
 
         stringstream sstr;
         sstr << istr.rdbuf();
         if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
-            { LOGMSG("Cannot parse json document:\n%s", doc.GetString()); break; }
+        { set_error_code(eCannotParseCloudConfigJson); break; }
 
         s_cloud_config& conf = dptr->conf.cloud;
 
-        RJ_GET(doc, KEY_ACTIVE_CLOUD, conf.cloud_name);
+        RJ_GET(doc, KEY_ACTIVE_CLOUD, conf.cloud_name, eActiveCloudJsonNotFound);
 
         const Value& obj = doc[conf.cloud_name.c_str()];
         if (false == obj.IsObject()) break;
 
-        RJ_GET(obj, KEY_HOST_NAME, conf.host_name);
-        RJ_GET(obj, KEY_CLIENT_ID, conf.client_id);
-        RJ_GET(obj, KEY_THING_NAME, conf.thing_name);
-        RJ_GET(obj, KEY_CERT_FILE, conf.cert_filename);
-        RJ_GET(obj, KEY_ROOTCA_FILE, conf.rootca_filename);
-        RJ_GET(obj, KEY_PRIVKEY_FILE, conf.privkey_filename);
-        RJ_GET(obj, KEY_MQTT_PORT, conf.mqtt_port);
+        RJ_GET(obj, KEY_HOST_NAME, conf.host_name, eHostNameJsonNotFound);
+        RJ_GET(obj, KEY_CLIENT_ID, conf.client_id, eClientIdJsonNotFound);
+        RJ_GET(obj, KEY_THING_NAME, conf.thing_name, eThingNameJsonNotFound);
+        RJ_GET(obj, KEY_CERT_FILE, conf.cert_filename, eCertFileJsonNotFound);
+        RJ_GET(obj, KEY_ROOTCA_FILE, conf.rootca_filename, eRootcaFileJsonNotFound);
+        RJ_GET(obj, KEY_PRIVKEY_FILE, conf.privkey_filename, ePrivkeyFileJsonNotFound);
+        RJ_GET(obj, KEY_MQTT_PORT, conf.mqtt_port, eMqttPortJsonNotFound);
 
         status = true;
     } while(0);
@@ -296,7 +296,7 @@ bool parse_cloud_config()
         #undef MAP_ITEM
     }
 
-    LOGMSGIF(!status, "Cannot parse cloud config");
+    set_error_if(!status, eInvalidCloudConfig);
 
     return status;
 }
@@ -311,23 +311,23 @@ bool parse_device_config()
 
         ifstream istr; istr.open(dptr->conf_device.c_str(), ios::binary);
         if (false == istr.is_open())
-            { LOGSTR("Cannot open device config file: %s", dptr->conf_device); break; }
+        { set_error_code(eCannotOpenDeviceConfig); break; }
 
         stringstream sstr; sstr << istr.rdbuf();
         if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
-            { LOGMSG("Cannot parse json document:\n%s", doc.GetString()); break; }
+        { set_error_code(eCannotParseDeviceConfigJson); break; }
 
         s_device_config& conf = dptr->conf.device;
 
-        RJ_GET(doc, KEY_DEVICE_NAME, conf.device_name);
-        RJ_GET(doc, KEY_GROUP_NAME, conf.group_name);
-        RJ_GET(doc, KEY_LOCATION, conf.location);
-        RJ_GET(doc, KEY_COUNTRY, conf.country);
+        RJ_GET(doc, KEY_DEVICE_NAME, conf.device_name, eDeviceNameJsonNotFound);
+        RJ_GET(doc, KEY_GROUP_NAME, conf.group_name, eGroupNameJsonNotFound);
+        RJ_GET(doc, KEY_LOCATION, conf.location, eLocationJsonNotFound);
+        RJ_GET(doc, KEY_COUNTRY, conf.country, eCountryJsonNotFound);
 
         status = true;
     } while(0);
 
-    LOGMSGIF(!status, "Cannot parse device config");
+    set_error_if(!status, eInvalidDeviceConfig);
 
     return status;
 }
@@ -342,23 +342,23 @@ bool parse_identify_config()
 
         ifstream istr; istr.open(dptr->conf_identify.c_str(), ios::binary);
         if (false == istr.is_open())
-            { LOGSTR("Cannot open device identify file: %s", dptr->conf_identify); break; }
+        { set_error_code(eCannotOpenDeviceIdentify); break; }
 
         stringstream sstr; sstr << istr.rdbuf();
         if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
-            { LOGMSG("Cannot parse json document:\n%s", doc.GetString()); break; }
+        { set_error_code(eCannotParseDeviceIdentifyJson); break; }
 
         s_identify_config& conf = dptr->conf.identify;
 
-        RJ_GET(doc, KEY_MODEL, conf.model_string);
-        RJ_GET(doc, KEY_SERIAL, conf.serial_string);
-        RJ_GET(doc, KEY_FIRMWARE, conf.firmware_string);
-        RJ_GET(doc, KEY_CAPACITY, conf.capacity);
+        RJ_GET(doc, KEY_MODEL, conf.model_string, eModelJsonNotFound);
+        RJ_GET(doc, KEY_SERIAL, conf.serial_string, eSerialJsonNotFound);
+        RJ_GET(doc, KEY_FIRMWARE, conf.firmware_string, eFirmwareJsonNotFound);
+        RJ_GET(doc, KEY_CAPACITY, conf.capacity, eCapacityJsonNotFound);
 
         status = true;
     } while(0);
 
-    LOGMSGIF(!status, "Cannot parse identify config");
+    set_error_if(!status, eInvalidDeviceIdentify);
 
     return status;
 }

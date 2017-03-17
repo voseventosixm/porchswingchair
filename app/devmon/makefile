@@ -29,7 +29,7 @@ APP_INCLUDE_DIRS += -I $(VTVIEW)/
 APP_SRC_FILES += $(MAIN)/appconfig.cpp $(MAIN)/appdata.cpp \
                  $(MAIN)/appmain.cpp   $(MAIN)/applog.cpp \
                  $(MAIN)/apptest.cpp   $(MAIN)/appresource.cpp \
-                 $(MAIN)/apputil.cpp
+                 $(MAIN)/apputil.cpp   $(MAIN)/apperror.cpp
 
 APP_SRC_FILES += $(VTVIEW)/vtview_interface.cpp $(VTVIEW)/temp_interface.cpp \
                  $(VTVIEW)/smart_interface.cpp  $(VTVIEW)/smart_converter.cpp
