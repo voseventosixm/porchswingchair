@@ -4,10 +4,6 @@
 #include "stdheader.h"
 #include "stdmacro.h"
 
-// Usage:
-// log.set_logstate("devmon", false); -> devmon.txt, truncate mode
-// log.set_logstate("devmon", true ); -> devmon_112324532.txt, truncate mode
-
 struct s_app_log
 {
     bool logstate;

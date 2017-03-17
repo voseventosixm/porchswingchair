@@ -4,13 +4,9 @@
     "shmemName" : "/dev/shmem0",
     "shmemVersion" : "1",
 
-    "geoipPath" : "./geoiputil/data",
+    "geoipPath" : "../config/geodb",
 
-    "lookupServer" : [
-        "ipecho.net/plain", "icanhazip.com", "ident.me",
-        "bot.whatismyipaddress.com", "ifconfig.co", "ifconfig.me/ip"],
-
-    "cloudConfig" : "./devinfo/cloud_config.json",
-    "deviceConfig" : "./devinfo/device_config.json",
-    "deviceIdentify" : "./devinfo/device_identify.json"
+    "cloudConfig" : "../config/cloud_config.json",
+    "deviceConfig" : "../config/device_config.json",
+    "deviceIdentify" : "../config/device_identify.json"
 }

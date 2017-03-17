@@ -3,7 +3,7 @@
 #define MAP_ITEM(doctype, valtype, testfunc, getfunc) \
     bool rj_get(const doctype& obj, const char* name, valtype& value) { \
         bool status = RJ_TESTKEY(obj, name) && obj[name].testfunc(); \
-        if(status) obj[name].getfunc(); \
+        if(status) value = obj[name].getfunc(); \
         return status; \
     }
 

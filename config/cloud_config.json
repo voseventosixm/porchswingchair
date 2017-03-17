@@ -3,9 +3,9 @@
         "hostName" : "a243uabiez3zv6.iot.us-east-1.amazonaws.com",
         "clientID" : "sample_client_id_03",
         "thingName" : "Phu_DartTest01",
-        "rootCA" :  "/home/ppham/Desktop/github/chocopie/config/cloud/aws/rootCA.crt",
-        "cert" :    "/home/ppham/Desktop/github/chocopie/config/cloud/aws/4258e55272-certificate.pem.crt",
-        "privKey" : "/home/ppham/Desktop/github/chocopie/config/cloud/aws/4258e55272-private.pem.key",
+        "rootCA" :  "./config/cloud/aws/rootCA.crt",
+        "cert" :    "./config/cloud/aws/4258e55272-certificate.pem.crt",
+        "privKey" : "./config/cloud/aws/4258e55272-private.pem.key",
         "mqttPort" : 8883
     },
 
