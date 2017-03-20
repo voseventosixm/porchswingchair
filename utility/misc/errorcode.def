@@ -1,0 +1,57 @@
+MAP_ITEM(eInvalidApplicationArgument,       "Invalid application argument")
+
+MAP_ITEM(eCannotOpenApplicationConfig,      "Cannot open application config file")
+MAP_ITEM(eCannotParseApplicationConfigJson, "Cannot parse application config json")
+
+MAP_ITEM(eCannotOpenCloudConfig,            "Cannot open cloud config file")
+MAP_ITEM(eCannotParseCloudConfigJson,       "Cannot parse cloud config json")
+
+MAP_ITEM(eCannotOpenDeviceConfig,           "Cannot open device config file")
+MAP_ITEM(eCannotParseDeviceConfigJson,      "Cannot parse device config json")
+
+MAP_ITEM(eCannotOpenDeviceIdentify,         "Cannot open device identify file")
+MAP_ITEM(eCannotParseDeviceIdentifyJson,    "Cannot parse device identify json")
+
+// Json configuration errors
+MAP_ITEM(eShmemNameJsonNotFound,            "Cannot find json config for shmem-name")
+MAP_ITEM(eShmemVersionJsonNotFound,         "Cannot find json config for shmem-version")
+MAP_ITEM(eDebugModeJsonNotFound,            "Cannot find json config for debug-mode")
+MAP_ITEM(eGeoipPathJsonNotFound,            "Cannot find json config for geoip-directory")
+MAP_ITEM(eCloudConfigJsonNotFound,          "Cannot find json config for cloud-config-file")
+MAP_ITEM(eDeviceConfigJsonNotFound,         "Cannot find json config for device-config-file")
+MAP_ITEM(eDeviceIdentifyJsonNotFound,       "Cannot find json config for device-identify-file")
+
+MAP_ITEM(eInvalidApplicationConfig,         "Invalid application config")
+
+MAP_ITEM(eActiveCloudJsonNotFound,          "Cannot find json config for active-cloud")
+MAP_ITEM(eHostNameJsonNotFound,             "Cannot find json config for host-name")
+MAP_ITEM(eClientIdJsonNotFound,             "Cannot find json config for client-id")
+MAP_ITEM(eThingNameJsonNotFound,            "Cannot find json config for thing-name")
+MAP_ITEM(eCertFileJsonNotFound,             "Cannot find json config for cert-file")
+MAP_ITEM(eRootcaFileJsonNotFound,           "Cannot find json config for rootca-file")
+MAP_ITEM(ePrivkeyFileJsonNotFound,          "Cannot find json config for privkey-file")
+MAP_ITEM(eMqttPortJsonNotFound,             "Cannot find json config for mqtt-port")
+
+MAP_ITEM(eInvalidCloudConfig,               "Invalid cloud config")
+
+MAP_ITEM(eModelJsonNotFound,                "Cannot find json config for model")
+MAP_ITEM(eSerialJsonNotFound,               "Cannot find json config for serial")
+MAP_ITEM(eFirmwareJsonNotFound,             "Cannot find json config for firmware")
+MAP_ITEM(eCapacityJsonNotFound,             "Cannot find json config for capacity")
+
+MAP_ITEM(eInvalidDeviceIdentify,            "Invalid device identify")
+
+MAP_ITEM(eDeviceNameJsonNotFound,           "Cannot find json config for device-name")
+MAP_ITEM(eGroupNameJsonNotFound,            "Cannot find json config for group-name")
+MAP_ITEM(eLocationJsonNotFound,             "Cannot find json config for location")
+MAP_ITEM(eCountryJsonNotFound,              "Cannot find json config for country")
+
+MAP_ITEM(eInvalidDeviceConfig,              "Invalid device config")
+
+
+
+
+
+MAP_ITEM(eCannotInitializeShmem,            "Cannot initialize shmem")
+MAP_ITEM(eCannotInitializeResource,         "Cannot initialize resource")
+MAP_ITEM(eCannotStartMqttHandler,           "Cannot start mqtt handler thread")

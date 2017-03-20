@@ -69,55 +69,10 @@ OTHER_FILES += \
     app/devmon/mqtt/mqttmap.def
 
 OTHER_FILES += \
-    app/devmon/main/errorcode.def \
     config/devmon_config.json \
     config/cloud_config.json \
     config/device_config.json \
     config/device_identify.json
-}
-
-CONFIG(DEVLOG)
-{
-
-INCLUDEPATH += app/devlog/main
-INCLUDEPATH += app/devlog/logger
-INCLUDEPATH += app/devlog/vtview
-INCLUDEPATH += app/devlog/vtview/smart
-
-HEADERS += \
-    app/devlog/main/applog.h \
-    app/devlog/main/apperror.h \
-    app/devlog/main/appconfig.h \
-    app/devlog/main/appdata.h \
-    app/devlog/main/appmain.h \
-    app/devlog/main/apptest.h \
-    app/devlog/main/apputil.h \
-    app/devlog/main/appresource.h \
-    \
-    app/devlog/log/loghandler.h \
-    app/devlog/log/logutil.h
-
-SOURCES += \
-    app/devlog/main/applog.cpp \
-    app/devlog/main/apperror.cpp \
-    app/devlog/main/appconfig.cpp \
-    app/devlog/main/appdata.cpp \
-    app/devlog/main/appmain.cpp \
-    app/devlog/main/apptest.cpp \
-    app/devlog/main/apputil.cpp \
-    app/devlog/main/appresource.cpp \
-    \
-    app/devlog/log/loghandler.cpp \
-    app/devlog/log/logutil.cpp
-
-OTHER_FILES += \
-    app/devlog/makefile \
-    app/devlog/main/vt_usage.txt \
-    app/devlog/main/errorcode.def \
-    app/devlog/main/configkey.def
-
-OTHER_FILES += \
-    config/devlog_config.json
 }
 
 CONFIG(UTILITY)
@@ -185,8 +140,9 @@ SOURCES += \
     utility/geoip/region_name.cpp
 
 OTHER_FILES += \
-    app/devmon/vt_version.txt \
-    app/devmon/vt_license.txt
+    utility/misc/errorcode.def \
+    utility/misc/vt_version.txt \
+    utility/misc/vt_license.txt
 }
 
 CONFIG(AWSPORT)
