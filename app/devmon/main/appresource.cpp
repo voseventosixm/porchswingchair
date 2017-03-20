@@ -1,3 +1,4 @@
+#include "debuglog.h"
 
 #include "appdata.h"
 #include "apputil.h"

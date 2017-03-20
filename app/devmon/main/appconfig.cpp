@@ -1,5 +1,6 @@
 #include "stdmacro.h"
 #include "rjaccess.h"
+#include "debuglog.h"
 
 #include "appdata.h"
 #include "apputil.h"
@@ -24,7 +25,7 @@ void generate_config(s_app_config& conf)
     generate_config(conf.cloud);
     generate_config(conf.device);
     generate_config(conf.identify);
-    generate_config(conf.devmon);
+    generate_config(conf.program);
 }
 
 void generate_config(s_cloud_config &config)
@@ -55,7 +56,7 @@ void generate_config(s_identify_config &config)
     config.firmware_string = DEF_FIRMWARE;
 }
 
-void generate_config(s_devmon_config &config)
+void generate_config(s_program_config &config)
 {
     config.debug_mode = false;
 
@@ -78,7 +79,7 @@ void generate_config(const string &filename, e_config_type conftype)
     MAP_ITEM(CONFTYPE_CLOUD, s_cloud_config);
     MAP_ITEM(CONFTYPE_DEVICE, s_device_config);
     MAP_ITEM(CONFTYPE_IDENTIFY, s_identify_config);
-    MAP_ITEM(CONFTYPE_DEVMON, s_devmon_config);
+    MAP_ITEM(CONFTYPE_PROGRAM, s_program_config);
     default: break;
     }
 
@@ -92,7 +93,7 @@ void generate_config(const string &filename, e_config_type conftype)
 static bool parse_cloud_config();
 static bool parse_device_config();
 static bool parse_identify_config();
-static bool parse_devmon_config();
+static bool parse_program_config();
 
 bool parse_params(int argc, char **argv)
 {
@@ -134,7 +135,7 @@ bool parse_params(int argc, char **argv)
     MAP_ITEM(OP_GENCONF_CLOUD,   generate_config(argv[2], CONFTYPE_CLOUD), 0);
     MAP_ITEM(OP_GENCONF_DEVICE,  generate_config(argv[2], CONFTYPE_DEVICE), 0);
     MAP_ITEM(OP_GENCONF_IDENTIFY,generate_config(argv[2], CONFTYPE_IDENTIFY), 0);
-    MAP_ITEM(OP_GENCONF_APP,     generate_config(argv[2], CONFTYPE_DEVMON), 0);
+    MAP_ITEM(OP_GENCONF_APP,     generate_config(argv[2], CONFTYPE_PROGRAM), 0);
 
     case OP_MONITOR_DEVICE: return parse_config(argv[2]); break;
 
@@ -157,7 +158,7 @@ bool parse_config(const string &filename)
     bool status = false;
 
     do {
-        if (false == parse_devmon_config()) break;
+        if (false == parse_program_config()) break;
 
         if (false == parse_cloud_config()) break;
         if (false == parse_device_config()) break;
@@ -166,12 +167,13 @@ bool parse_config(const string &filename)
         status = true;
     } while(0);
 
-    if (true == status) update_logstate();
+    s_app_config* cptr = get_config_ptr();
+    if (true == status) update_logstate(cptr->program.debug_mode);
 
     return status;
 }
 
-bool parse_devmon_config()
+bool parse_program_config()
 {
     s_app_data* dptr = get_data_ptr();
 
@@ -187,7 +189,7 @@ bool parse_devmon_config()
         if (doc.Parse(sstr.str().c_str()).HasParseError() || !doc.IsObject())
         { set_error_code(eCannotParseApplicationConfigJson); break; }
 
-        s_devmon_config& conf = dptr->conf.devmon;
+        s_program_config& conf = dptr->conf.program;
 
         RJ_GET(doc, KEY_SHMEM_NAME, conf.shmem_name, eShmemNameJsonNotFound);
         RJ_GET(doc, KEY_SHMEM_VERSION, conf.shmem_version, eShmemVersionJsonNotFound);
@@ -206,7 +208,7 @@ bool parse_devmon_config()
 
     if (true == status)
     {
-        s_devmon_config& conf = dptr->conf.devmon;
+        s_program_config& conf = dptr->conf.program;
 
         char* cptr = conf.string_buffer;
         size_t cpos = 0;
@@ -226,7 +228,7 @@ bool parse_devmon_config()
         #undef MAP_ITEM
     }
 
-    LOGMSGIF(status, "Application config:\n %s", to_string(dptr->conf.devmon).c_str());
+    LOGMSGIF(status, "Application config:\n %s", to_string(dptr->conf.program).c_str());
 
     set_error_if(!status, eInvalidApplicationConfig);
 
@@ -379,7 +381,7 @@ void reset_config()
     reset_config(dptr->conf.cloud);
     reset_config(dptr->conf.device);
     reset_config(dptr->conf.identify);
-    reset_config(dptr->conf.devmon);
+    reset_config(dptr->conf.program);
 }
 
 void reset_config(s_cloud_config &conf)
@@ -421,7 +423,7 @@ void reset_config(s_identify_config &conf)
     conf.capacity = 0;
 }
 
-void reset_config(s_devmon_config &conf)
+void reset_config(s_program_config &conf)
 {
     conf.debug_mode = false;
 
@@ -482,7 +484,7 @@ string to_string(const s_identify_config& conf)
     return RJ_TOSTRING();
 }
 
-string to_string(const s_devmon_config& conf)
+string to_string(const s_program_config& conf)
 {
     RJ_DECWRITER(); RJ_START();
 
@@ -505,7 +507,7 @@ string to_string(const s_app_config& param)
     sstr << to_string(param.cloud) << endl;
     sstr << to_string(param.device) << endl;
     sstr << to_string(param.identify) << endl;
-    sstr << to_string(param.devmon) << endl;
+    sstr << to_string(param.program) << endl;
 
     return sstr.str();
 }

@@ -1,4 +1,4 @@
-#include "apperror.h"
+#include "errorstack.h"
 
 s_error_stack::s_error_stack()
 {
@@ -7,31 +7,31 @@ s_error_stack::s_error_stack()
 
 void s_error_stack::reset()
 {
-    estack.clear();
+    logstack.clear();
 }
 
 void s_error_stack::clear()
 {
-    estack.clear();
+    logstack.clear();
 }
 
 bool s_error_stack::is_error() const
 {
-    return 0 != estack.size();
+    return 0 != logstack.size();
 }
 
 void s_error_stack::push_error(e_error_code state)
 {
-    estack.push_back(state);
+    logstack.push_back(state);
 }
 
 string s_error_stack::to_string() const
 {
     stringstream sstr;
 
-    for (int i = 0; i < estack.size(); i++)
+    for (int i = 0; i < logstack.size(); i++)
     {
-        sstr << to_string(estack[i]) << endl;
+        sstr << to_string(logstack[i]) << endl;
     }
 
     return sstr.str();

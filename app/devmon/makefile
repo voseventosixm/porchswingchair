@@ -13,7 +13,7 @@ SOLUTION_DIR = ../..
 OUTPUT_DIR = $(SOLUTION_DIR)/output
 
 # -------------------------------------------------------
-# devmon application
+# application
 # -------------------------------------------------------
 APP_SRC_DIR = $(SOLUTION_DIR)/app/devmon
 MAIN = $(APP_SRC_DIR)/main
@@ -27,9 +27,9 @@ APP_INCLUDE_DIRS += -I $(PORT)/
 APP_INCLUDE_DIRS += -I $(VTVIEW)/
 
 APP_SRC_FILES += $(MAIN)/appconfig.cpp $(MAIN)/appdata.cpp \
-                 $(MAIN)/appmain.cpp   $(MAIN)/applog.cpp \
+                 $(MAIN)/appmain.cpp   $(MAIN)/apputil.cpp \
                  $(MAIN)/apptest.cpp   $(MAIN)/appresource.cpp \
-                 $(MAIN)/apputil.cpp   $(MAIN)/apperror.cpp
+
 
 APP_SRC_FILES += $(VTVIEW)/vtview_interface.cpp $(VTVIEW)/temp_interface.cpp \
                  $(VTVIEW)/smart_interface.cpp  $(VTVIEW)/smart_converter.cpp
@@ -60,7 +60,8 @@ UTIL_SRC_FILES += $(CORE)/StringUtil.cpp \
                   $(CORE)/CoreUtil.cpp     $(CORE)/HexFormatter.cpp \
                   $(CORE)/MiscUtil.cpp     $(CORE)/SmartUtil.cpp
 
-UTIL_SRC_FILES += $(MISC)/rjaccess.cpp     $(MISC)/fileutil.cpp
+UTIL_SRC_FILES += $(MISC)/rjaccess.cpp     $(MISC)/fileutil.cpp \
+                  $(MISC)/debuglog.cpp     $(MISC)/errorstack.cpp
 
 UTIL_SRC_FILES += $(GEOIP)/geoip.cpp       $(GEOIP)/geoip_city.cpp $(GEOIP)/geoip_deprecated.cpp \
                   $(GEOIP)/region_name.cpp $(GEOIP)/time_zone.cpp  $(GEOIP)/geoip_interface.cpp

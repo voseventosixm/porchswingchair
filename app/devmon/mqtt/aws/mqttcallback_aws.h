@@ -33,7 +33,7 @@ extern tAwsPubCallback aws_handle_iam_connected_device;
     s_cloud_config& cloud = conf->cloud; \
     s_device_config& device = conf->device; \
     s_identify_config& identify = conf->identify; \
-    s_devmon_config& devmon = conf->devmon; \
+    s_program_config& program = conf->program; \
     AWS_IoT_Client& client = ((s_aws_mqtt_client*) task.client)->client
 
 

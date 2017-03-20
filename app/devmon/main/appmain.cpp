@@ -1,5 +1,6 @@
+#include "debuglog.h"
+#include "errorstack.h"
 
-#include "applog.h"
 #include "appdata.h"
 #include "apputil.h"
 #include "apptest.h"
@@ -13,7 +14,7 @@ int main(int argc, char** argv)
     bool status = false;
 
     do {
-        init_applog();
+        init_debuglog("devmon");
 
         if (false == parse_params(argc, argv)) break;
 
@@ -31,7 +32,7 @@ int main(int argc, char** argv)
         status = true;
     } while(0);
 
-    s_app_error* estack = get_error_stack();
+    s_error_stack* estack = get_error_stack();
     LOGSTRIF(estack->is_error(), "ErrorStack: \n%s", estack->to_string());
 
     return status ? EXIT_SUCCESS : EXIT_FAILURE;

@@ -1,4 +1,5 @@
 #include "stdmacro.h"
+#include "debuglog.h"
 
 #include "appdata.h"
 #include "appresource.h"

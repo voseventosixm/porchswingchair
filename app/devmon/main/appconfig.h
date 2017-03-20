@@ -50,7 +50,7 @@ struct s_device_config
     string country;
 };
 
-struct s_devmon_config
+struct s_program_config
 {
     string shmem_name;
     string shmem_version;
@@ -72,7 +72,7 @@ struct s_app_config
     s_cloud_config cloud;
     s_device_config device;
     s_identify_config identify;
-    s_devmon_config devmon;
+    s_program_config program;
 };
 
 enum e_config_type
@@ -81,7 +81,7 @@ enum e_config_type
     CONFTYPE_CLOUD,
     CONFTYPE_DEVICE,
     CONFTYPE_IDENTIFY,
-    CONFTYPE_DEVMON,
+    CONFTYPE_PROGRAM,
 };
 
 // Parsing config data
@@ -93,7 +93,7 @@ void generate_config(s_app_config& conf);
 void generate_config(s_cloud_config& conf);
 void generate_config(s_device_config& conf);
 void generate_config(s_identify_config& conf);
-void generate_config(s_devmon_config& conf);
+void generate_config(s_program_config& conf);
 void generate_config(const string& filename, e_config_type conftype);
 
 // Viewing config data
@@ -101,13 +101,13 @@ string to_string(const s_app_config& param);
 string to_string(const s_cloud_config& param);
 string to_string(const s_device_config& param);
 string to_string(const s_identify_config& param);
-string to_string(const s_devmon_config& param);
+string to_string(const s_program_config& param);
 
 // Utilities on configuration data
 void reset_config();
 void reset_config(s_cloud_config& conf);
 void reset_config(s_device_config& conf);
 void reset_config(s_identify_config& conf);
-void reset_config(s_devmon_config& conf);
+void reset_config(s_program_config& conf);
 
 #endif

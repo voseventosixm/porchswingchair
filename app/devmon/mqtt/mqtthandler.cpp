@@ -1,6 +1,7 @@
 #include "stdmacro.h"
 #include "stdheader.h"
 #include "sysheader.h"
+#include "debuglog.h"
 
 #include "appdata.h"
 #include "appmain.h"

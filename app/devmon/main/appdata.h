@@ -3,9 +3,9 @@
 
 #include "stdheader.h"
 #include "sysheader.h"
+#include "debuglog.h"
+#include "errorstack.h"
 
-#include "applog.h"
-#include "apperror.h"
 #include "appconfig.h"
 #include "appresource.h"
 
@@ -56,13 +56,13 @@ struct s_app_data
     // configuration info
     s_app_config conf;
 
-    string conf_app;      // json file, private configuration for this devmon
+    string conf_app;      // json file, private configuration for this program
     string conf_device;   // json file, working configuration
     string conf_identify; // json file, serial number, device model, ...
     string conf_cloud;    // json file, cloud configuration
 
     // app logger
-    s_app_error ecode;
+    s_error_stack estack;
 };
 
 extern s_app_data app_data;
@@ -72,6 +72,6 @@ s_app_task* get_task_ptr();
 s_app_info* get_info_ptr();
 s_app_config* get_config_ptr();
 s_mqtt_task* get_mqtt_task();
-s_app_error* get_error_stack();
+s_error_stack* get_error_stack();
 
 #endif

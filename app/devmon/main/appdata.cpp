@@ -8,4 +8,4 @@ s_app_task* get_task_ptr() { return &app_data.task; }
 s_app_info* get_info_ptr() { return &app_data.info; }
 s_app_config* get_config_ptr() { return &app_data.conf; }
 s_mqtt_task* get_mqtt_task() { return &app_data.task.mqtt; }
-s_app_error* get_error_stack() { return &app_data.ecode; }
+s_error_stack* get_error_stack() { return &app_data.estack; }

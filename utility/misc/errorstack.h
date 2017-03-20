@@ -13,7 +13,7 @@ enum e_error_code
 
 struct s_error_stack
 {
-    vector<e_error_code> estack;
+    vector<e_error_code> logstack;
 
 public:
     void reset();
