@@ -34,23 +34,40 @@ private:
     bool test_logstream() const;
 };
 
-extern s_debug_log debug_log;
+// ----------------------------------------------------
+// Application level logger
+// ----------------------------------------------------
+
 s_debug_log* get_log_ptr();
 
 void update_logstate(bool state);
 void init_debuglog(const string& prefix);
 
+// ----------------------------------------------------
 // LOG macros
+// ----------------------------------------------------
+
+#define FORMAT_BUFFER(msgbuff, ...)\
+        char msgbuff[MAXSIZE + 1], \
+        char argbuff[MAXSIZE + 1]; \
+        sprintf(argbuff, __VA_ARGS__); \
+        sprintf(msgbuff, "[%s(%s:%04d)] %s", __FUNCTION__, __FILE__, __LINE__, argbuff); \
+    } while(0)
 
 #define LOGMSG(...) do { \
-        char content[MAXSIZE + 1], buffer[MAXSIZE + 1]; \
-        sprintf(buffer, __VA_ARGS__); \
-        sprintf(content, "[%s:%04d] %s", __FUNCTION__, __LINE__, buffer); \
-        get_log_ptr()->add(string(content)); \
-    } while(0)
+        FORMAT_BUFFER(msgbuff, __VA_ARGS__); \
+        get_log_ptr()->add(string(msgbuff)); } while(0)
 
 #define LOGSTR(frmt, valstr) LOGMSG(frmt, valstr.c_str())
 #define LOGMSGIF(cond, ...) if (cond) LOGMSG(__VA_ARGS__)
 #define LOGSTRIF(cond, ...) if (cond) LOGSTR(__VA_ARGS__)
+
+#define SHOWMSG(...) do { \
+        FORMAT_BUFFER(msgbuff, __VA_ARGS__); \
+        cout << msgbuff << endl; } while(0)
+
+#define SHOWSTR(frmt, valstr) SHOWMSG(frmt, valstr.c_str())
+#define SHOWMSGIF(cond, ...) if (cond) SHOWMSG(__VA_ARGS__)
+#define SHOWSTRIF(cond, ...) if (cond) SHOWSTR(__VA_ARGS__)
 
 #endif

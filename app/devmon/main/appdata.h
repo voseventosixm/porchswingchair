@@ -9,21 +9,6 @@
 #include "appconfig.h"
 #include "appresource.h"
 
-enum e_operation_code
-{
-    OP_INVALID,
-    OP_SHOW_HELP,
-    OP_SHOW_VERSION,
-    OP_SHOW_LICENSE,
-
-    OP_GENCONF_APP,
-    OP_GENCONF_CLOUD,
-    OP_GENCONF_DEVICE,
-    OP_GENCONF_IDENTIFY,
-
-    OP_MONITOR_DEVICE,
-};
-
 struct s_mqtt_task
 {
     bool task_ready;
@@ -43,6 +28,21 @@ struct s_app_info
 {
     string ipaddr;
     s_shmem_info shmem;
+};
+
+enum e_operation_code
+{
+    OP_INVALID,
+    OP_SHOW_HELP,
+    OP_SHOW_VERSION,
+    OP_SHOW_LICENSE,
+
+    OP_GENCONF_APP,
+    OP_GENCONF_CLOUD,
+    OP_GENCONF_DEVICE,
+    OP_GENCONF_IDENTIFY,
+
+    OP_MONITOR_DEVICE,
 };
 
 struct s_app_data
@@ -73,5 +73,10 @@ s_app_info* get_info_ptr();
 s_app_config* get_config_ptr();
 s_mqtt_task* get_mqtt_task();
 s_error_stack* get_error_stack();
+
+#define DUMPSTACK() do { \
+        s_error_stack* estack = get_error_stack(); \
+        LOGSTR("Error Stack: \n%s", estack->to_string()); \
+    } while(0)
 
 #endif
