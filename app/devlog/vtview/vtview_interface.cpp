@@ -3,7 +3,6 @@
 
 #include "appdata.h"
 
-#include "temp_interface.h"
 #include "smart_interface.h"
 
 #include "vtview_interface.h"

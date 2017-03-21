@@ -5,7 +5,7 @@
 #include "apputil.h"
 #include "apptest.h"
 #include "appconfig.h"
-#include "mqtthandler.h"
+#include "loghandler.h"
 
 #include "appmain.h"
 
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 
         // if (false == test_utility()) break;
 
-        if (false == start_mqtt_handler()) { set_error_code(eCannotStartMqttHandler); break; }
+        if (false == start_log_handler()) { set_error_code(eCannotStartMqttHandler); break; }
 
         SHOWMSG("Joining threads");
         join_worker_thread();

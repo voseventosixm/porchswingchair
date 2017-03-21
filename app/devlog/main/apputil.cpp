@@ -2,7 +2,7 @@
 #include "apputil.h"
 #include "appdata.h"
 #include "appconfig.h"
-#include "mqtthandler.h"
+#include "loghandler.h"
 
 // ------------------------------------------------------
 // common utilities
@@ -66,10 +66,10 @@ void set_error_if(bool cond, e_error_code code)
 
 void stop_worker_thread()
 {
-    stop_mqtt_handler();
+    stop_log_handler();
 }
 
 void join_worker_thread()
 {
-    join_mqtt_handler();
+    join_log_handler();
 }

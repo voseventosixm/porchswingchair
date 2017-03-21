@@ -9,43 +9,41 @@
 #include "appconfig.h"
 #include "appresource.h"
 
-#include "mqttutil.h"
-#include "mqtthandler.h"
-#include "mqttcallback.h"
-#include "mqttcallback_aws.h"
+#include "logutil.h"
+#include "loghandler.h"
 
 static bool init_mqtt_client();
 static bool publish_topics();
 static bool subscribe_topics();
 static bool process_messages();
-static void* mqtt_handler_func(void*);
+static void* log_handler_func(void*);
 
-bool start_mqtt_handler()
+bool start_log_handler()
 {
     s_app_data* aptr = get_data_ptr();
-    s_mqtt_task& tref = get_task_ptr()->mqtt;
+    s_logger_task& tref = get_task_ptr()->mqtt;
 
     tref.task_ready = false;
     tref.request_stop = false;
 
     pthread_t pid;
-    bool status = (0 == pthread_create(&pid, NULL, mqtt_handler_func, NULL));
+    bool status = (0 == pthread_create(&pid, NULL, log_handler_func, NULL));
 
     return status;
 }
 
-bool join_mqtt_handler()
+bool join_log_handler()
 {
-    s_mqtt_task& tref = get_task_ptr()->mqtt;
+    s_logger_task& tref = get_task_ptr()->mqtt;
 
     while(!tref.task_ready);
 
     pthread_join(tref.thread_id, NULL);
 }
 
-bool stop_mqtt_handler()
+bool stop_log_handler()
 {
-    s_mqtt_task& tref = get_task_ptr()->mqtt;
+    s_logger_task& tref = get_task_ptr()->mqtt;
 
     tref.request_stop = true;
 }
@@ -78,17 +76,17 @@ static bool process_messages()
     return false;
 }
 
-static void* mqtt_handler_func(void* param)
+static void* log_handler_func(void* param)
 {
     ASSERT(NULL == param);
 
     s_app_data* aptr = get_data_ptr();
-    s_mqtt_task& tref = get_task_ptr()->mqtt;
+    s_logger_task& tref = get_task_ptr()->mqtt;
 
     tref.thread_id = pthread_self();
     tref.task_ready = true;
 
-    SHOWMSG("Start mqtt_handler_thread");
+    SHOWMSG("Start log_handler_thread");
 
     bool status = false;
     do {

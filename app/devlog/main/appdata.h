@@ -9,7 +9,7 @@
 #include "appconfig.h"
 #include "appresource.h"
 
-struct s_mqtt_task
+struct s_logger_task
 {
     bool task_ready;
     bool request_stop;
@@ -21,12 +21,11 @@ struct s_mqtt_task
 
 struct s_app_task
 {
-    s_mqtt_task mqtt;
+    s_logger_task logger;
 };
 
 struct s_app_info
 {
-    string ipaddr;
     s_shmem_info shmem;
 };
 
@@ -38,9 +37,6 @@ enum e_operation_code
     OP_SHOW_LICENSE,
 
     OP_GENCONF_APP,
-    OP_GENCONF_CLOUD,
-    OP_GENCONF_DEVICE,
-    OP_GENCONF_IDENTIFY,
 
     OP_MONITOR_DEVICE,
 };
@@ -56,10 +52,7 @@ struct s_app_data
     // configuration info
     s_app_config conf;
 
-    string conf_app;      // json file, private configuration for this program
-    string conf_device;   // json file, working configuration
-    string conf_identify; // json file, serial number, device model, ...
-    string conf_cloud;    // json file, cloud configuration
+    string conf_program;  // json file, private configuration for this program
 
     // app logger
     s_error_stack estack;
@@ -71,7 +64,7 @@ s_app_data* get_data_ptr();
 s_app_task* get_task_ptr();
 s_app_info* get_info_ptr();
 s_app_config* get_config_ptr();
-s_mqtt_task* get_mqtt_task();
+s_logger_task* get_mqtt_task();
 s_error_stack* get_error_stack();
 
 #define DUMPSTACK() do { \
