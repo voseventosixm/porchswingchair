@@ -29,14 +29,9 @@ bool start_mqtt_handler()
     tref.request_stop = false;
 
     pthread_t pid;
-    int res = pthread_create(&pid, NULL, mqtt_handler_func, NULL);
-    if (0 != res)
-    {
-        set_error_code(eCannotStartMqttHandler);
-        return false;
-    }
+    bool status = (0 == pthread_create(&pid, NULL, mqtt_handler_func, NULL));
 
-    return true;
+    return status;
 }
 
 bool join_mqtt_handler()
@@ -85,8 +80,6 @@ static bool process_messages()
 
 static void* mqtt_handler_func(void* param)
 {
-    SC_INIT();
-
     ASSERT(NULL == param);
 
     s_app_data* aptr = get_data_ptr();
@@ -95,27 +88,22 @@ static void* mqtt_handler_func(void* param)
     tref.thread_id = pthread_self();
     tref.task_ready = true;
 
-    LOGMSG("Start mqtt_handler_thread");
+    SHOWMSG("Start mqtt_handler_thread");
 
     bool status = false;
     do {
-        SC_NEXT();
         if (false == init_mqtt_client()) break;
 
-        SC_NEXT();
         if (false == publish_topics()) break;
 
-        SC_NEXT();
         if (false == subscribe_topics()) break;
 
-        SC_NEXT();
         if (false == process_messages()) break;
 
-        SC_NEXT();
         status = true;
     } while(0);
 
-    LOGMSGIF(!status, "Error somewhere. StepCode: %d", SC_GET());
+    set_error_if(!status, eMqttHandlerFuncError);
 
     return NULL;
 }

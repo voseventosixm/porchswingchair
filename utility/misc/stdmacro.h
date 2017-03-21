@@ -23,4 +23,13 @@
 #define VOID04(var1, var2, var3, var4)       VOID03(var1, var2, var3); VOID01(var4)
 #define VOID05(var1, var2, var3, var4, var5) VOID04(var1, var2, var3, var4); VOID01(var5)
 
+// Format utilities
+#define BOOL_STR(val) (val ? "True" : "False")
+#define FRMT_DEC(w) setw(w) << setfill('0') << dec
+#define FRMT_HEX(w) setw(w) << setfill('0') << hex
+#define FRMT_DBL(w, val) right << setw(w) << val                                        /* Format Double */
+#define FRMT_U32(w, val) right << setw(w) << setfill('0') << dec << (unsigned int) val  /* Format U32 */
+#define FRMT_STR(w, str)  left << setw(w) << setfill(' ') << str                        /* Format String */
+#define FRMT_BLN(w, val)  left << setw(w) << setfill(' ') << BOOL_STR(val)              /* Format Boolean */
+
 #endif

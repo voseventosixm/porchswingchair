@@ -91,11 +91,8 @@ bool init_resource()
     int state = STATE_INIT_NONE;
 
     do {
-        if (false == init_shmem(&adptr->info.shmem))
-        {
-            set_error_code(eCannotInitializeShmem);
-            break;
-        }
+        if (false == init_shmem(&adptr->info.shmem)) {
+            set_error_code(eCannotInitializeShmem); break; }
 
         state |= STATE_INIT_SHMEM;
 
@@ -106,8 +103,6 @@ bool init_resource()
     {
         if (state & STATE_INIT_SHMEM) close_shmem(&adptr->info.shmem);
     }
-
-    LOGMSGIF(!status, "Cannot init resource");
 
     return status;
 }

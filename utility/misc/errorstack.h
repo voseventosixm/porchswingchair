@@ -25,7 +25,8 @@ public:
     void push_error(e_error_code state);
 
     string to_string() const;
-    string to_string(e_error_code code) const;
+    string to_text_string(e_error_code code) const;
+    string to_enum_string(e_error_code code) const;
 };
 
 #endif

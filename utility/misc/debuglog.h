@@ -47,12 +47,11 @@ void init_debuglog(const string& prefix);
 // LOG macros
 // ----------------------------------------------------
 
-#define FORMAT_BUFFER(msgbuff, ...)\
-        char msgbuff[MAXSIZE + 1], \
+#define FORMAT_BUFFER(msgbuff, ...) \
+        char msgbuff[MAXSIZE + 1]; \
         char argbuff[MAXSIZE + 1]; \
         sprintf(argbuff, __VA_ARGS__); \
-        sprintf(msgbuff, "[%s(%s:%04d)] %s", __FUNCTION__, __FILE__, __LINE__, argbuff); \
-    } while(0)
+        sprintf(msgbuff, "[%s(%s:%04d)] %s", __FUNCTION__, __FILE__, __LINE__, argbuff)
 
 #define LOGMSG(...) do { \
         FORMAT_BUFFER(msgbuff, __VA_ARGS__); \

@@ -34,6 +34,7 @@ HEADERS += \
     app/devmon/mqtt/aws/mqttjson_aws.h \
     app/devmon/mqtt/aws/mqttcallback_aws.h \
     \
+    app/devmon/vtview/geoip_interface.h \
     app/devmon/vtview/vtview_interface.h \
     app/devmon/vtview/temp_interface.h \
     app/devmon/vtview/smart_converter.h \
@@ -55,6 +56,7 @@ SOURCES += \
     app/devmon/mqtt/aws/mqtthandler_aws.cpp \
     app/devmon/mqtt/aws/mqttcallback_aws.cpp \
     \
+    app/devmon/vtview/geoip_interface.cpp \
     app/devmon/vtview/vtview_interface.cpp \
     app/devmon/vtview/temp_interface.cpp \
     app/devmon/vtview/smart_converter.cpp \
@@ -112,8 +114,7 @@ HEADERS += \
     utility/geoip/geoip.h \
     utility/geoip/geoip_city.h \
     utility/geoip/geoip_config.h \
-    utility/geoip/geoip_internal.h \
-    utility/geoip/geoip_interface.h
+    utility/geoip/geoip_internal.h
 
 SOURCES += \
     utility/misc/fileutil.cpp \

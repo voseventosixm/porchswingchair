@@ -18,7 +18,7 @@
 
 void aws_handle_disconnect(AWS_IoT_Client *clientptr, void *data)
 {
-    LOGMSG("Client disconnected");
+    SHOWMSG("Client disconnected");
 
     IoT_Error_t rc = FAILURE;
 
@@ -26,15 +26,15 @@ void aws_handle_disconnect(AWS_IoT_Client *clientptr, void *data)
 
     if(true == aws_iot_is_autoreconnect_enabled(clientptr))
     {
-        LOGMSG("Auto Reconnect is enabled, Reconnecting attempt will start now");
+        SHOWMSG("Auto Reconnect is enabled, Reconnecting attempt will start now");
     }
     else
     {
-        LOGMSG("Auto Reconnect not enabled. Starting manual reconnect...");
+        SHOWMSG("Auto Reconnect not enabled. Starting manual reconnect...");
 
         rc = aws_iot_mqtt_attempt_reconnect(clientptr);
-        if(NETWORK_RECONNECTED == rc) LOGMSG("Manual Reconnect Successful");
-        else                          LOGMSG("Manual Reconnect Failed - %d", rc);
+        if(NETWORK_RECONNECTED == rc) SHOWMSG("Manual Reconnect Successful");
+        else                          SHOWMSG("Manual Reconnect Failed - %d", rc);
     }
 }
 
@@ -48,7 +48,7 @@ void aws_handle_iam_connected_device()
 
     JSON_BUFFER(json);
 
-    LOGMSG("Build json content: iam_connected_device");
+    SHOWMSG("Build json content: iam_connected_device");
     if (false == aws_build_json_device_identify(jsonbuff, jsonsize)) return;
 
     IoT_Publish_Message_Params param;
@@ -66,10 +66,10 @@ void aws_handle_iam_connected_device()
     rc = aws_iot_mqtt_publish(&client, topic, topic_len, &param);
     if (rc == MQTT_REQUEST_TIMEOUT_ERROR)
     {
-        LOGMSG("Publish ACK not received on topic %s", topic);
+        SHOWMSG("Publish ACK not received on topic %s", topic);
     }
 
-    LOGMSG("Publish topic: %s", topic);
+    SHOWMSG("Publish topic: %s", topic);
 }
 
 // ------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void aws_handle_general_message(
 {
     string msgname = string(topic, len);
 
-    LOGSTR("Dispatch message: %s", msgname);
+    SHOWSTR("Dispatch message: %s", msgname);
 
     e_mqttmsg_id msgid = get_message_id(msgname);
 
@@ -96,7 +96,7 @@ void aws_handle_general_message(
         MAP_ITEM(SUB_GET_CONNECTED_DEVICE, aws_handle_get_connected_device);
 
         default:
-            LOGMSG("Received unhandled message: %s", topic);
+            SHOWMSG("Received unhandled message: %s", topic);
             break;
     }
 }
@@ -107,7 +107,7 @@ void aws_handle_get_vtview_data(
     IoT_Publish_Message_Params *params,
     void *data)
 {
-    LOGMSG("Receive message: %s", topic);
+    SHOWMSG("Receive message: %s", topic);
 
     AWS_DEF_VARS();
 
@@ -123,7 +123,7 @@ void aws_handle_get_connected_device(
     IoT_Publish_Message_Params *params,
     void *data)
 {
-    LOGMSG("Receive message: %s", string(topic, len).c_str());
+    SHOWSTR("Receive message: %s", string(topic, len));
 
     aws_handle_iam_connected_device();
 }

@@ -31,13 +31,18 @@ string s_error_stack::to_string() const
 
     for (int i = 0; i < logstack.size(); i++)
     {
-        sstr << to_string(logstack[i]) << endl;
+        e_error_code code = logstack[i];
+
+        sstr << "[" << FRMT_U32(2, i) << "] "
+             << "# " << FRMT_STR(36, to_enum_string(code)) << " "
+             << "# " << FRMT_STR(36, to_text_string(code)) << " "
+             << endl;
     }
 
     return sstr.str();
 }
 
-string s_error_stack::to_string(e_error_code code) const
+string s_error_stack::to_text_string(e_error_code code) const
 {
     stringstream sstr;
 
@@ -47,7 +52,23 @@ string s_error_stack::to_string(e_error_code code) const
     #include "errorcode.def"
     #undef MAP_ITEM
 
-    default: sstr << "Unknown error code"; break;
+    default: ASSERT(0); break;
+    }
+
+    return sstr.str();
+}
+
+string s_error_stack::to_enum_string(e_error_code code) const
+{
+    stringstream sstr;
+
+    switch(code)
+    {
+    #define MAP_ITEM(code, text) case code: sstr << #code; break;
+    #include "errorcode.def"
+    #undef MAP_ITEM
+
+    default: ASSERT(0); break;
     }
 
     return sstr.str();

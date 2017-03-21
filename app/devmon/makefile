@@ -32,7 +32,8 @@ APP_SRC_FILES += $(MAIN)/appconfig.cpp $(MAIN)/appdata.cpp \
 
 
 APP_SRC_FILES += $(VTVIEW)/vtview_interface.cpp $(VTVIEW)/temp_interface.cpp \
-                 $(VTVIEW)/smart_interface.cpp  $(VTVIEW)/smart_converter.cpp
+                 $(VTVIEW)/smart_interface.cpp  $(VTVIEW)/smart_converter.cpp \
+                 $(VTVIEW)/geoip_interface.cpp
 
 APP_SRC_FILES += $(MQTT)/mqttutil.cpp         $(MQTT)/mqttmsg.cpp \
                  $(MQTT)/mqttcallback.cpp     $(MQTT)/mqtthandler.cpp \
@@ -64,7 +65,7 @@ UTIL_SRC_FILES += $(MISC)/rjaccess.cpp     $(MISC)/fileutil.cpp \
                   $(MISC)/debuglog.cpp     $(MISC)/errorstack.cpp
 
 UTIL_SRC_FILES += $(GEOIP)/geoip.cpp       $(GEOIP)/geoip_city.cpp $(GEOIP)/geoip_deprecated.cpp \
-                  $(GEOIP)/region_name.cpp $(GEOIP)/time_zone.cpp  $(GEOIP)/geoip_interface.cpp
+                  $(GEOIP)/region_name.cpp $(GEOIP)/time_zone.cpp
 
 UTIL_SRC_FILES += $(SMART)/smart.c         $(SMART)/smart_common.c
 

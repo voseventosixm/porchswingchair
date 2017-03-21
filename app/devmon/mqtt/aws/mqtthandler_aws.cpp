@@ -1,6 +1,7 @@
 #include "stdmacro.h"
 #include "debuglog.h"
 
+#include "apputil.h"
 #include "appdata.h"
 #include "appresource.h"
 
@@ -23,8 +24,6 @@ static bool aws_subscribe_topic(e_mqttmsg_id id, tAwsSubCallback callback);
 
 bool aws_init_mqtt_client()
 {
-    SC_INIT();
-
     int msize = sizeof (s_aws_mqtt_client);
 
     s_aws_mqtt_client* mptr = (s_aws_mqtt_client*) malloc (msize);
@@ -35,61 +34,56 @@ bool aws_init_mqtt_client()
 
     bool status = false;
     do {
-        SC_NEXT();
-        if (false == mqtt_init_client()) break;
+        if (false == mqtt_init_client())
+        { set_error_code(eCannotInitClientObject); break; }
 
-        SC_NEXT();
-        if (false == mqtt_connect_client()) break;
+        if (false == mqtt_connect_client())
+        { set_error_code(eCannotConnectClientObject); break; }
 
-        SC_NEXT();
-        if (false == mqtt_init_shadow()) break;
+        if (false == mqtt_init_shadow())
+        { set_error_code(eCannotInitThingShadow); break; }
 
-        SC_NEXT();
-        if (false == mqtt_connect_shadow()) break;
+        if (false == mqtt_connect_shadow())
+        { set_error_code(eCannotConnectThingShadow); break; }
 
-        SC_NEXT();
         status = true;
     } while(0);
 
-    LOGMSGIF(!status, "Cannot init mqtt client. StepCode: %d", SC_GET());
+    set_error_if(!status, eCannotInitMqttClient);
 
     return status;
 }
 
 bool aws_publish_topics()
 {
-    SC_INIT();
     bool status = false;
 
     do {
-        SC_NEXT();
         aws_handle_iam_connected_device();
 
         status = true;
     } while(0);
 
-    LOGMSGIF(!status, "Cannot publish topics. StepCode: %d", SC_GET());
+    set_error_if(!status, eCannotPublishMqttTopics);
 
     return status;
 }
 
 bool aws_subscribe_topics()
 {
-    SC_INIT();
     bool status = false;
 
     do {
+        if (false == aws_subscribe_topic(SUB_GET_CONNECTED_DEVICE, aws_handle_get_connected_device))
+        { set_error_code(eCannotSubGetConnectedDevice); break; }
 
-        SC_NEXT();
-        aws_subscribe_topic(SUB_GET_CONNECTED_DEVICE, aws_handle_get_connected_device);
-
-        SC_NEXT();
-        aws_subscribe_topic(SUB_GET_VTVIEW_DATA, aws_handle_get_vtview_data);
+        if (false == aws_subscribe_topic(SUB_GET_VTVIEW_DATA, aws_handle_get_vtview_data))
+        { set_error_code(eCannotSubGetVtviewData); break; }
 
         status = true;
     } while(0);
 
-    LOGMSGIF(!status, "Cannot subscribe topics. StepCode: %d", SC_GET());
+    set_error_if(!status, eCannotSubscribeMqttTopics);
 
     return status;
 }
@@ -100,7 +94,7 @@ bool aws_process_messages()
 
     while(!task.request_stop)
     {
-        LOGMSG("calling mqtt_yield");
+        SHOWMSG("calling mqtt_yield");
 
         IoT_Error_t rc = aws_iot_mqtt_yield(&client, 100);
 

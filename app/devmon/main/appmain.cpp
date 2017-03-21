@@ -16,17 +16,18 @@ int main(int argc, char** argv)
     do {
         init_debuglog("devmon");
 
-        if (false == parse_params(argc, argv)) break;
+        if (false == parse_params(argc, argv)) {
+            set_error_code(eInvalidApplicationArgument); break; }
 
-        LOGMSG("Init resources");
-        if (false == init_resource()) break;
+        if (false == init_resource()) {
+            set_error_code(eCannotInitializeResource);  break; }
 
         // if (false == test_utility()) break;
 
-        LOGMSG("Start worker threads");
-        if (false == start_mqtt_handler()) break;
+        if (false == start_mqtt_handler()) {
+            set_error_code(eCannotStartMqttHandler); break; }
 
-        LOGMSG("Joining threads");
+        SHOWMSG("Joining threads");
         join_worker_thread();
 
         status = true;
