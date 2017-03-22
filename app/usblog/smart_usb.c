@@ -40,7 +40,7 @@ void set_smart_id(cmn_raw_smart* smart_data)
     smart_data->max_slc.attr_id     = 38;
 }
 
-static void smart_dev_reset(cmn_smart_device* ptr_smart_device)
+static void sml_reset_device(cmn_smart_device* ptr_smart_device)
 {
     ptr_smart_device->device_path[0]    = '\0';
     ptr_smart_device->physical_path[0]  = '\0';
@@ -54,11 +54,11 @@ static void smart_dev_reset(cmn_smart_device* ptr_smart_device)
     ptr_smart_device->smart_pool_idx    = MAX_DEVICE_COUNT;
 }
 
-static void smart_dev_mngr_initialize(void)
+static void sml_initialize(void)
 {
     uint8_t n_dev;
     for (n_dev = 0; n_dev < MAX_DEVICE_COUNT; ++ n_dev) {
-        smart_dev_reset(&gp_dev_mngr->device_list[n_dev]);
+        sml_reset_device(&gp_dev_mngr->device_list[n_dev]);
     }
 
     gp_dev_mngr->allocated_pool_count = 0;
@@ -66,7 +66,7 @@ static void smart_dev_mngr_initialize(void)
     gp_dev_mngr->currlog_time         = 0;
 }
 
-static void smart_data_reset_currlog(cmn_smart_data* ptr_smart_data)
+static void sml_reset_currlog(cmn_smart_data* ptr_smart_data)
 {
     cmn_smart_currlog* p_current = &ptr_smart_data->currlog;
     memset(p_current, 0, sizeof(cmn_smart_currlog));
@@ -78,7 +78,7 @@ static void smart_data_reset_currlog(cmn_smart_data* ptr_smart_data)
     memcpy(&p_current->raw_buffer[0], &p_current->raw_attr, sizeof(p_current->raw_buffer[0]));
 }
 
-static void smart_data_reset_fulllog(cmn_smart_data* ptr_smart_data)
+static void sml_reset_fulllog(cmn_smart_data* ptr_smart_data)
 {
     // method set index
     cmn_smart_fulllog* p_log    = &ptr_smart_data->fulllog;
@@ -122,8 +122,8 @@ static void make_sample(void)
 
     ptr_smart_data = get_smart_data(ptr_smart_dev->smart_pool_idx);
 
-    smart_data_reset_currlog(ptr_smart_data);
-    smart_data_reset_fulllog(ptr_smart_data);
+    sml_reset_currlog(ptr_smart_data);
+    sml_reset_fulllog(ptr_smart_data);
 
     ptr_smart_dev->smart_config.sampling_rate = DEFAULT_SMART_LOG_SAMPLING_RATE;
 
@@ -134,7 +134,7 @@ void debug_init(void)
 {
     gp_dev_mngr = kmalloc(sizeof(cmn_smart_buffer), GFP_KERNEL);
 
-    smart_dev_mngr_initialize();
+    sml_initialize();
     make_sample();
 }
 
