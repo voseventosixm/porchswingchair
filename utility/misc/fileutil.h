@@ -5,5 +5,13 @@
 #include "stdheader.h"
 
 bool read_file(const string& filename, string& json);
+void write_string(const string& filename, const string& content);
+
+bool read_text(const string& name, string& text);
+bool write_text(const string& name, const string& text);
+
+bool write_data(const string &name, const U8* buffer, U32 size);
+bool append_data(const string &name, const U8* buffer, U32 size);
+bool read_data(const string &name, U32 offset, U8* buffer, U32 size);
 
 #endif

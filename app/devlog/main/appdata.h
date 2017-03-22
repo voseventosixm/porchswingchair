@@ -38,7 +38,7 @@ enum e_operation_code
 
     OP_GENCONF_APP,
 
-    OP_MONITOR_DEVICE,
+    OP_LOG_VTVIEW,
 };
 
 struct s_app_data
@@ -64,12 +64,18 @@ s_app_data* get_data_ptr();
 s_app_task* get_task_ptr();
 s_app_info* get_info_ptr();
 s_app_config* get_config_ptr();
-s_logger_task* get_mqtt_task();
+s_logger_task* get_logger_task();
 s_error_stack* get_error_stack();
 
 #define DUMPSTACK() do { \
         s_error_stack* estack = get_error_stack(); \
         LOGSTR("Error Stack: \n%s", estack->to_string()); \
     } while(0)
+
+#define APP_DEF_VARS() \
+    s_app_data* aptr = get_data_ptr(); \
+    s_app_config* conf = get_config_ptr(); \
+    s_logger_task& logtask = get_task_ptr()->logger; \
+    s_program_config& program = conf->program;
 
 #endif

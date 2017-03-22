@@ -3,7 +3,4 @@
 " -l         Print license\n"
 " -v         Print version\n"
 " -f  config Run device monitor with config file\n"
-" -gc config Generate sample cloud config file\n"
-" -gd config Generate sample device config file\n"
-" -gi config Generate sample identify config file\n"
 " -ga config Generate sample application config file\n"

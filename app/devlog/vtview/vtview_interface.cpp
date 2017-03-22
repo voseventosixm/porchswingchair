@@ -1,5 +1,6 @@
 #include "stdheader.h"
 #include "stdmacro.h"
+#include "fileutil.h"
 
 #include "appdata.h"
 
@@ -15,27 +16,24 @@ static void build_vtview_param(s_vtview_param& param);
 
 void build_vtview_param(s_vtview_param &param)
 {
+    const s_program_config& conf = get_config_ptr()->program;
+
     param.memptr = get_info_ptr()->shmem.memptr;
-    param.capacity = get_config_ptr()->identify.capacity;
+
+    param.smartlog_backup = conf.smartlog_backup;
+    param.smartlog_filename = conf.smartlog_filename;
 }
 
-bool get_vtview_info(s_vtview_info &info)
+bool load_vtview_info()
 {
     s_vtview_param param;
     build_vtview_param(param);
 
-    bool status = false;
-    do {
-        memset(&info, 0x00, sizeof(info));
+    // save smartlog from memptr
 
-        // Update storage information
-        if (false == BuildVtViewInfo_Storage(info, param)) break;
+    bool status = true;
 
-        // Update temperature information
-        if (false == BuildVtViewInfo_Temperature(info, param)) break;
+    status &= write_data(param.smartlog_filename, param.memptr, param.memsize);
 
-        status = true;
-    } while(0);
-
-    return status;
+    return
 }

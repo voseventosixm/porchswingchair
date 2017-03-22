@@ -17,15 +17,6 @@ struct s_program_config
     string shmem_version;
 
     bool   debug_mode;
-
-    string geoip_path;
-
-    string conf_cloud;
-    string conf_device;
-    string conf_identify;
-
-    size_t geoip_offset;
-    char string_buffer[MAXSIZE];
 };
 
 struct s_app_config

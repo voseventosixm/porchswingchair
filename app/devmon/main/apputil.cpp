@@ -37,20 +37,6 @@ void print_version()
 }
 
 // ------------------------------------------------------
-// common utilities
-// ------------------------------------------------------
-
-void write_string(const string &filename, const string &content)
-{
-    ofstream fstr;
-    fstr.open(filename.c_str(), ios::out);
-
-    fstr << content;
-
-    fstr.close();
-}
-
-// ------------------------------------------------------
 // application utilities
 // ------------------------------------------------------
 

@@ -14,15 +14,13 @@ int main(int argc, char** argv)
     bool status = false;
 
     do {
-        init_debuglog("devmon");
+        init_debuglog("devlog");
 
         if (false == parse_params(argc, argv)) { set_error_code(eInvalidApplicationArgument); break; }
 
         if (false == init_resource()) { set_error_code(eCannotInitializeResource);  break; }
 
-        // if (false == test_utility()) break;
-
-        if (false == start_log_handler()) { set_error_code(eCannotStartMqttHandler); break; }
+        if (false == start_log_handler()) { set_error_code(eCannotStartLogHandler); break; }
 
         SHOWMSG("Joining threads");
         join_worker_thread();

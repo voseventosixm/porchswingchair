@@ -4,23 +4,11 @@
 struct s_vtview_param
 {
     void*  memptr;
-    double capacity;
+    string smartlog_backup;
+    string smartlog_filename;
 };
 
-struct s_vtview_info
-{
-    double write_amp;
-    double remaining_time;
-    double remaining_tbw;
-    double remaining_life;
-    double remaining_spare;
-
-    unsigned int data_read;
-    unsigned int data_written;
-	
-	unsigned int temperature;
-};
-
-bool get_vtview_info (s_vtview_info& info);
+bool load_vtview_info();
+bool save_vtview_info();
 
 #endif

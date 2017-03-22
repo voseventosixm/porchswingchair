@@ -1,31 +1,4 @@
-// Cloud configuration keys
-MAP_ITEM(ACTIVE_CLOUD,   "activeCloud",    "aws")
-MAP_ITEM(HOST_NAME,      "hostName",       "a243uabiez3zv6.iot.us-east-1.amazonaws.com")
-MAP_ITEM(CLIENT_ID,      "clientID",       "sample_client_id_01")
-MAP_ITEM(THING_NAME,     "thingName",      "Phu_DartTest01")
-MAP_ITEM(ROOTCA_FILE,    "rootCA",         "/home/root/devinfo/cloud/aws/rootca.crt")
-MAP_ITEM(CERT_FILE,      "cert",           "/home/root/devinfo/cloud/aws/cert.pem")
-MAP_ITEM(PRIVKEY_FILE,   "privKey",        "/home/root/devinfo/cloud/aws/privkey.pem")
-MAP_ITEM(MQTT_PORT,      "mqttPort",       "8883")
-
-// Device identify keys
-MAP_ITEM(MODEL,          "model",          "SampleModel")
-MAP_ITEM(SERIAL,         "serial",         "SampleSerial")
-MAP_ITEM(FIRMWARE,       "firmware",       "SampleFirmware")
-MAP_ITEM(CAPACITY,       "capacity",       "127.11")
-
-// Device configuration keys
-MAP_ITEM(DEVICE_NAME,    "deviceName",     "SampleDevice")
-MAP_ITEM(GROUP_NAME,     "groupName",      "SampleGroup")
-MAP_ITEM(LOCATION,       "location",       "SampleLocation")
-MAP_ITEM(COUNTRY,        "country",        "SampleCountry")
-
-// Devmon configuration keys
+// Program configuration keys
 MAP_ITEM(DEBUG_MODE,     "debugMode",      "false")
 MAP_ITEM(SHMEM_NAME,     "shmemName",      "/dev/shmem0")
 MAP_ITEM(SHMEM_VERSION,  "shmemVersion",   "1")
-MAP_ITEM(GEOIP_PATH,     "geoipPath",      "/home/root/devinfo/geodb")
-MAP_ITEM(LOOKUP_SERVER,  "lookupServer",   "ipecho.net/plain")
-MAP_ITEM(CLOUD_CONFIG,   "cloudConfig",    "/home/root/devinfo/cloud_config.json")
-MAP_ITEM(DEVICE_CONFIG,  "deviceConfig",   "/home/root/devinfo/device_config.json")
-MAP_ITEM(IDENTIFY_CONFIG,"deviceIdentify", "/home/root/devinfo/device_identify.json")

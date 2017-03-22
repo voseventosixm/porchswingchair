@@ -15,11 +15,6 @@ void stop_worker_thread();
 void join_worker_thread();
 
 // ------------------------------------------------------
-// common utility
-// ------------------------------------------------------
-void write_string(const string& filename, const string& content);
-
-// ------------------------------------------------------
 // text utility
 // ------------------------------------------------------
 
