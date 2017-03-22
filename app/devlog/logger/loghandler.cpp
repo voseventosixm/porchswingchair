@@ -59,7 +59,7 @@ static void* log_handler_func(void* param)
     {
         SHOWMSG("logging smart");
 
-        vtview_logsmart();
+        save_vtview_info();
 
         sleep(1);
     }

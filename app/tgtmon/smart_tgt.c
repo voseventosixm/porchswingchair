@@ -3,10 +3,10 @@
 #include "tgtd.h"
 #include "scsi.h"
 
-void smart_tgt_create(cmn_smart_buffer* ptr_dev_mngr)
+void smart_tgt_create(cmn_smart_buffer* buffptr)
 {
     DO_SKIP();
-    init_smart_buffer(ptr_dev_mngr);
+    init_smart_buffer(buffptr);
 }
 
 void smart_tgt_count_lba(struct scsi_cmd *cmd)
@@ -14,16 +14,16 @@ void smart_tgt_count_lba(struct scsi_cmd *cmd)
     uint32_t length = 0;
 
     DO_SKIP();
-    cmn_smart_device *ptr_smart_dev;
-    cmn_smart_data* ptr_smart_data;
+    cmn_smart_device *devptr;
+    cmn_smart_data* dataptr;
 
-    ptr_smart_dev = get_smart_device(cmd->dev->path);
-    if (NULL == ptr_smart_dev) return;
+    devptr = get_smart_device(cmd->dev->path);
+    if (NULL == devptr) return;
 
-    ptr_smart_data = get_smart_data(ptr_smart_dev->smart_pool_idx);
-    if (NULL == ptr_smart_data) return;
+    dataptr = get_smart_data(devptr->smart_pool_idx);
+    if (NULL == dataptr) return;
 
-    cmn_raw_smart *p_cur_raw_att = &ptr_smart_data->currlog.raw_attr;
+    cmn_raw_smart *rawptr = &dataptr->currlog.raw_attr;
 
     switch (cmd->scb[0])
     {
@@ -43,8 +43,8 @@ void smart_tgt_count_lba(struct scsi_cmd *cmd)
     case WRITE_VERIFY_12:
     case WRITE_VERIFY_16:
         length = scsi_get_out_length(cmd);
-        p_cur_raw_att->acc.curr_read    += length;
-        p_cur_raw_att->acc.curr_written += length;
+        rawptr->acc.curr_read    += length;
+        rawptr->acc.curr_written += length;
         break;
 
     case WRITE_6:
@@ -52,7 +52,7 @@ void smart_tgt_count_lba(struct scsi_cmd *cmd)
     case WRITE_12:
     case WRITE_16:
         length = scsi_get_out_length(cmd);
-        p_cur_raw_att->acc.curr_written += length;
+        rawptr->acc.curr_written += length;
         break;
 
     case WRITE_SAME:
@@ -65,7 +65,7 @@ void smart_tgt_count_lba(struct scsi_cmd *cmd)
     case READ_12:
     case READ_16:
         length = scsi_get_in_length(cmd);
-        p_cur_raw_att->acc.curr_read += length;
+        rawptr->acc.curr_read += length;
         break;
 
     case PRE_FETCH_10:
@@ -77,7 +77,7 @@ void smart_tgt_count_lba(struct scsi_cmd *cmd)
     case VERIFY_12:
     case VERIFY_16:
         length = scsi_get_out_length(cmd);
-        p_cur_raw_att->acc.curr_read += length;
+        rawptr->acc.curr_read += length;
         break;
 
     case UNMAP:
@@ -92,12 +92,12 @@ void smart_tgt_count_lba(struct scsi_cmd *cmd)
 
             case ATA_READ_DMA:
                 length = scsi_get_in_length(cmd);
-                p_cur_raw_att->acc.curr_read += length;
+                rawptr->acc.curr_read += length;
                 break;
 
             case ATA_WRITE_DMA:
                 length = scsi_get_out_length(cmd);
-                p_cur_raw_att->acc.curr_written += length;
+                rawptr->acc.curr_written += length;
                 break;
 
             default:
@@ -109,14 +109,14 @@ void smart_tgt_count_lba(struct scsi_cmd *cmd)
         break;
     }
 
-    if (p_cur_raw_att->acc.curr_read >= READ_WRITE_SCALE_IN_BYTES) {
-        p_cur_raw_att->lba_read.raw_low += p_cur_raw_att->acc.curr_read / READ_WRITE_SCALE_IN_BYTES;
-        p_cur_raw_att->acc.curr_read %= READ_WRITE_SCALE_IN_BYTES;
+    if (rawptr->acc.curr_read >= READ_WRITE_SCALE_IN_BYTES) {
+        rawptr->lba_read.raw_low += rawptr->acc.curr_read / READ_WRITE_SCALE_IN_BYTES;
+        rawptr->acc.curr_read %= READ_WRITE_SCALE_IN_BYTES;
     }
 
-    if (p_cur_raw_att->acc.curr_written >= READ_WRITE_SCALE_IN_BYTES) {
-        p_cur_raw_att->lba_written.raw_low += p_cur_raw_att->acc.curr_written / READ_WRITE_SCALE_IN_BYTES;
-        p_cur_raw_att->acc.curr_written %= READ_WRITE_SCALE_IN_BYTES;
+    if (rawptr->acc.curr_written >= READ_WRITE_SCALE_IN_BYTES) {
+        rawptr->lba_written.raw_low += rawptr->acc.curr_written / READ_WRITE_SCALE_IN_BYTES;
+        rawptr->acc.curr_written %= READ_WRITE_SCALE_IN_BYTES;
     }
 }
 
