@@ -27,12 +27,8 @@ HEADERS += \
     app/tgtmon/scsi.h \
     app/tgtmon/scsi_cmnd.h \
     app/tgtmon/shmem_util.h \
-    app/tgtmon/smart.h \
-    app/tgtmon/smart_attr.h \
-    app/tgtmon/smart_common.h \
     app/tgtmon/smart_log.h \
     app/tgtmon/smart_tgt.h \
-    app/tgtmon/smart_type.h \
     app/tgtmon/smart_usb.h \
     app/tgtmon/smc.h \
     app/tgtmon/spc.h \
@@ -76,8 +72,6 @@ SOURCES += \
     app/tgtmon/scc.c \
     app/tgtmon/scsi.c \
     app/tgtmon/shmem_util.c \
-    app/tgtmon/smart.c \
-    app/tgtmon/smart_common.c \
     app/tgtmon/smart_log.c \
     app/tgtmon/smart_tgt.c \
     app/tgtmon/smart_usb.c \
