@@ -29,7 +29,6 @@ HEADERS += \
     app/tgtmon/shmem_util.h \
     app/tgtmon/smart_log.h \
     app/tgtmon/smart_tgt.h \
-    app/tgtmon/smart_usb.h \
     app/tgtmon/smc.h \
     app/tgtmon/spc.h \
     app/tgtmon/ssc.h \
@@ -74,7 +73,6 @@ SOURCES += \
     app/tgtmon/shmem_util.c \
     app/tgtmon/smart_log.c \
     app/tgtmon/smart_tgt.c \
-    app/tgtmon/smart_usb.c \
     app/tgtmon/smc.c \
     app/tgtmon/spc.c \
     app/tgtmon/ssc.c \
