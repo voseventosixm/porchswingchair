@@ -13,14 +13,17 @@
 
 struct s_program_config
 {
+    bool   debug_mode;
+
     string shmem_name;
     string shmem_version;
 
-    bool   debug_mode;
-
+    string log_config;
     string backup_path;
     string binary_path;
-    string log_config;
+
+    unsigned int freq_fulllog; // logging time in seconds
+    unsigned int freq_currlog; // logging time in seconds
 };
 
 struct s_app_config

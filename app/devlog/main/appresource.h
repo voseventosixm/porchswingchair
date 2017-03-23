@@ -48,7 +48,7 @@ struct s_logcmd_queue
 };
 
 bool peek_command(s_logcmd_queue& cmdq);
-bool push_command(s_logcmd_queue& cmdq, e_logcmd_code code);
+void push_command(s_logcmd_queue& cmdq, e_logcmd_code code);
 bool pop_command(s_logcmd_queue& cmdq, e_logcmd_code& code);
 
 #endif

@@ -35,6 +35,9 @@ void generate_config(s_program_config &config)
     config.backup_path = DEF_BACKUP_PATH;
     config.binary_path = DEF_BINARY_PATH;
     config.log_config = DEF_LOG_CONFIG;
+
+    config.freq_currlog = atoi(DEF_FREQ_CURRLOG);
+    config.freq_fulllog = atoi(DEF_FREQ_FULLLOG);
 }
 
 void generate_config(const string &filename, e_config_type conftype)
@@ -150,6 +153,9 @@ bool parse_program_config()
         RJ_GET(doc, KEY_BACKUP_PATH, conf.backup_path, eBackupPathJsonNotFound);
         RJ_GET(doc, KEY_LOG_CONFIG, conf.log_config, eConfigFileJsonNotFound);
 
+        RJ_GET(doc, KEY_FREQ_CURRLOG, conf.freq_currlog, eFreqCurrLogJsonNotFound);
+        RJ_GET(doc, KEY_FREQ_FULLLOG, conf.freq_fulllog, eFreqFullLogJsonNotFound);
+
         status = true;
     } while(0);
 
@@ -183,6 +189,9 @@ void reset_config(s_program_config &conf)
     conf.backup_path = "";
     conf.binary_path = "";
     conf.log_config = "";
+
+    conf.freq_currlog = 10;
+    conf.freq_fulllog = 900;
 }
 
 // -----------------------------------------------------------------
@@ -199,6 +208,8 @@ string to_string(const s_program_config& conf)
     RJ_ADDSTR(KEY_BACKUP_PATH    ,conf.backup_path);
     RJ_ADDSTR(KEY_BINARY_PATH    ,conf.binary_path);
     RJ_ADDSTR(KEY_LOG_CONFIG     ,conf.log_config);
+    RJ_ADDINT(KEY_FREQ_CURRLOG   , conf.freq_currlog);
+    RJ_ADDINT(KEY_FREQ_FULLLOG   , conf.freq_fulllog);
     RJ_STOP();
 
     return RJ_TOSTRING();

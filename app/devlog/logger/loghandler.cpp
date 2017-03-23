@@ -14,6 +14,7 @@
 #include "vtview_interface.h"
 
 static void* log_handler_func(void*);
+static bool process_log_command(e_logcmd_code code);
 
 bool start_log_handler()
 {
@@ -45,6 +46,21 @@ bool stop_log_handler()
     tref.request_stop = true;
 }
 
+static void process_log_command(e_logcmd_code code)
+{
+    bool status = true;
+    switch(code)
+    {
+        case LOGCMD_SAVE_CURRLOG: save_vtview_currlog(); break;
+        case LOGCMD_SAVE_FULLLOG: save_vtview_fulllog(); break;
+        default: status = false; break;
+    }
+
+    set_error_if(!status, eUnknownLogCommandCode);
+
+    return status;
+}
+
 static void* log_handler_func(void* param)
 {
     APP_DEF_VARS();
@@ -56,15 +72,14 @@ static void* log_handler_func(void* param)
 
     SHOWMSG("Start log_handler_thread");
 
-
-
     while(!logger.request_stop)
     {
-        SHOWMSG("logging smart");
+        e_logcmd_code code;
 
-        save_vtview_info();
-
-        sleep(1);
+        if (true == pop_command(info->logcmd, code))
+        {
+            process_log_command(code);
+        }
     }
 
     return NULL;

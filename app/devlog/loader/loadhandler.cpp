@@ -61,11 +61,27 @@ static void* load_handler_func(void* param)
         return false;
     }
 
+    unsigned int curr_counter = 0;
+    unsigned int full_counter = 0;
+
     while(!logger.request_stop)
     {
         sleep(1);
-		
-		// push request to logger
+
+        curr_counter++;
+        full_counter++;
+
+        if (curr_counter >= program.freq_currlog)
+        {
+            curr_counter = 0;
+            push_command(info->logcmd, LOGCMD_SAVE_CURRLOG);
+        }
+
+        if (full_counter >= program.freq_fulllog)
+        {
+            full_counter = 0;
+            push_command(info->logcmd, LOGCMD_SAVE_FULLLOG);
+        }
     }
 
     return NULL;

@@ -84,6 +84,7 @@ s_error_stack* get_error_stack();
 
 #define APP_DEF_VARS() \
     s_app_data* aptr = get_data_ptr(); \
+    s_app_info* info = get_info_ptr(); \
     s_app_config* conf = get_config_ptr(); \
     s_logger_task& logger = get_task_ptr()->logger; \
     s_loader_task& loader = get_task_ptr()->loader; \

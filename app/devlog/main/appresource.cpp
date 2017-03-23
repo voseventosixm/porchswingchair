@@ -73,6 +73,56 @@ static void free_kernel_shmem(s_shmem_info *param)
     param->memptr = NULL;
 }
 
+// ---------------------------------------------------------
+// manage command queue
+// ---------------------------------------------------------
+
+bool peek_command(s_logcmd_queue &cmdq)
+{
+    tQueueLock& lock = cmdq.lock;
+    tCmdQueue& queue = cmdq.cmdqueue;
+
+    pthread_mutex_lock(&lock);
+
+    bool status = (0 != queue.size());
+
+    pthread_mutex_unlock(&lock);
+
+    return status;
+}
+
+void push_command(s_logcmd_queue& cmdq, e_logcmd_code code)
+{
+    tQueueLock& lock = cmdq.lock;
+    tCmdQueue& queue = cmdq.cmdqueue;
+
+    pthread_mutex_lock(&lock);
+
+    queue.push_front(code);
+
+    pthread_mutex_unlock(&lock);
+}
+
+bool pop_command(s_logcmd_queue& cmdq, e_logcmd_code& code)
+{
+    tQueueLock& lock = cmdq.lock;
+    tCmdQueue& queue = cmdq.cmdqueue;
+
+    pthread_mutex_lock(&lock);
+
+    bool status = (0 != queue.size());
+
+    if (true == status)
+    {
+        code = queue.back();
+        queue.pop_back();
+    }
+
+    pthread_mutex_unlock(&lock);
+
+    return status;
+}
+
 // -----------------------------------------------------------------
 // manage resources
 // -----------------------------------------------------------------
