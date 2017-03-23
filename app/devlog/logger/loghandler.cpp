@@ -64,7 +64,5 @@ static void* log_handler_func(void* param)
         sleep(1);
     }
 
-    set_error_if(!status, eMqttHandlerFuncError);
-
     return NULL;
 }

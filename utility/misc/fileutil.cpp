@@ -82,3 +82,39 @@ bool append_data(const string &name, const U8* buffer, U32 size)
 
     return true;
 }
+
+bool is_directory(const string& path)
+{
+   struct stat info;
+
+   return stat(path.c_str(), &info) ? false : S_ISDIR(info.st_mode);
+}
+
+bool is_regular_file(const string& path)
+{
+   struct stat info;
+
+   return stat(path.c_str(), &info) ? false : S_ISREG(info.st_mode);
+}
+
+bool read_filelist(const string &root, vector<string> &namelist)
+{
+    DIR *dir;
+    if(NULL == (dir = opendir(root.c_str()))) return false;
+
+    namelist.clear();
+
+    struct dirent *item;
+    while (NULL != (item = readdir(dir)))
+    {
+        string name = string(item->d_name);
+        if (true == is_regular_file(name))
+        {
+            namelist.push_back(name);
+        }
+    }
+
+    closedir(dir);
+
+    return true;
+}

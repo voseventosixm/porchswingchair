@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <memory.h>
+#include <dirent.h>
 
 #include <set>
 #include <map>

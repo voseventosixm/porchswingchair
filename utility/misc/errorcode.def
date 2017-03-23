@@ -1,16 +1,18 @@
+// ------------------------------------------------------------------------------------
+// Error code for devmon
+// ------------------------------------------------------------------------------------
+
 MAP_ITEM(eUnknownApplicationErrorCode,      "Unknown application error-code")
 
-// ------------------------------------------------------------------------------------
 // Main steps
-// ------------------------------------------------------------------------------------
+// ----------------------------------
 
 MAP_ITEM(eInvalidApplicationArgument,       "Invalid application argument")
 MAP_ITEM(eCannotInitializeResource,         "Cannot initialize resource")
 MAP_ITEM(eCannotStartMqttHandler,           "Cannot start mqtt handler thread")
 
-// ------------------------------------------------------------------------------------
 // Input parameters class
-// ------------------------------------------------------------------------------------
+// ----------------------------------
 
 MAP_ITEM(eCannotOpenApplicationConfig,      "Cannot open application config file")
 MAP_ITEM(eCannotParseApplicationConfigJson, "Cannot parse application config json")
@@ -60,9 +62,8 @@ MAP_ITEM(eCountryJsonNotFound,              "Cannot find json config for country
 
 MAP_ITEM(eInvalidDeviceConfig,              "Invalid device config")
 
-// ------------------------------------------------------------------------------------
 // Work errors
-// ------------------------------------------------------------------------------------
+// ----------------------------------
 
 MAP_ITEM(eCannotInitClientObject,           "Cannot initialize client object")
 MAP_ITEM(eCannotConnectClientObject,        "Cannot connect client object")
@@ -80,3 +81,16 @@ MAP_ITEM(eCannotSubscribeMqttTopics,        "Cannot subscribe mqtt topics")
 MAP_ITEM(eMqttHandlerFuncError,             "Error in mqtt-handler-function")
 
 MAP_ITEM(eCannotInitializeShmem,            "Cannot initialize shmem")
+
+// ------------------------------------------------------------------------------------
+// Error code for devlog
+// ------------------------------------------------------------------------------------
+
+MAP_ITEM(eCannotStartLogHandler,            "Cannot start log handler thread")
+MAP_ITEM(eBinaryPathJsonNotFound,           "Cannot find json config for smartlog binary-path")
+MAP_ITEM(eBackupPathJsonNotFound,           "Cannot find json config for smartlog backup-path")
+MAP_ITEM(eConfigFileJsonNotFound,           "Cannot find json config for smartlog-config-file")
+
+// ------------------------------------------------------------------------------------
+// End
+// ------------------------------------------------------------------------------------

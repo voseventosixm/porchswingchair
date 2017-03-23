@@ -3,7 +3,17 @@
 
 #include "vtview_interface.h"
 
-// Build vtview info from SMART data in shared-memory
-bool BuildVtViewInfo_Storage(s_vtview_info& info, const s_vtview_param& param);
+bool verify_smartlog(const s_vtview_param& param);
+
+bool load_smartlog_binary(const s_vtview_param& param);
+bool load_smartlog_backup(const s_vtview_param& param);
+bool load_smartlog_config(const s_vtview_param& param);
+
+bool save_smartlog_binary(const s_vtview_param& param);
+bool save_smartlog_backup(const s_vtview_param& param);
+bool save_smartlog_config(const s_vtview_param& param);
+
+bool get_smartlog_binary(s_vtview_info& info, const s_vtview_param& param);
+bool get_smartlog_backup(s_vtview_info& info, const s_vtview_param& param);
 
 #endif

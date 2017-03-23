@@ -20,8 +20,20 @@ void build_vtview_param(s_vtview_param &param)
 
     param.memptr = get_info_ptr()->shmem.memptr;
 
-    param.smartlog_backup = conf.smartlog_backup;
-    param.smartlog_filename = conf.smartlog_filename;
+    param.backup_path = conf.backup_path;
+    param.binary_path = conf.binary_path;
+    param.log_config = conf.log_config;
+}
+
+bool get_vtview_info(s_vtview_info &info)
+{
+    s_vtview_param param;
+    build_vtview_param(param);
+
+    get_smartlog_binary(info, param);
+    get_smartlog_backup(info, param);
+
+    return true;
 }
 
 bool load_vtview_info()
@@ -29,11 +41,28 @@ bool load_vtview_info()
     s_vtview_param param;
     build_vtview_param(param);
 
-    // save smartlog from memptr
+    bool status = false;
+    do {
+        load_smartlog_config(param);
+        load_smartlog_binary(param);
+        load_smartlog_backup(param);
 
-    bool status = true;
+        if (false == verify_smartlog(param)) break;
 
-    status &= write_data(param.smartlog_filename, param.memptr, param.memsize);
+        status = true;
+    } while(0);
 
-    return
+    return status;
+}
+
+bool save_vtview_info()
+{
+    s_vtview_param param;
+    build_vtview_param(param);
+
+    save_smartlog_config(param);
+    save_smartlog_binary(param);
+    save_smartlog_backup(param);
+
+    return true;
 }

@@ -18,19 +18,19 @@
 
 static void* update_smart_func(void* param);
 
-static pthread_t smart_thread;
-static cmn_smart_buffer* smart_buffer;
-static const char smart_dir[128] = "/home/root/";
+static pthread_t sml_thread_func;
+static cmn_smart_buffer* sml_buffer;
+static const char sml_data_dir[128] = "/home/root/";
 
 // interface function
 void smart_intialize(void)
 {
     DO_SKIP();
-    smart_buffer = (cmn_smart_buffer*)shmem_get(sizeof(cmn_smart_buffer));
+    sml_buffer = (cmn_smart_buffer*)shmem_get(sizeof(cmn_smart_buffer));
 
     sml_initialize();
 
-    smart_tgt_create(smart_buffer);
+    smart_tgt_create(sml_buffer);
 }
 
 void smart_load_data(char* dev_path)
@@ -246,12 +246,12 @@ void sml_initialize()
 {
     uint8_t i;
     for (i = 0; i < MAX_DEVICE_COUNT; ++ i) {
-        sml_reset_device(&smart_buffer->device_list[i]);
+        sml_reset_device(&sml_buffer->device_list[i]);
     }
 
-    smart_buffer->allocated_pool_count   = 0;
-    smart_buffer->device_count = 0;
-    smart_buffer->currlog_time = 0;
+    sml_buffer->allocated_pool_count   = 0;
+    sml_buffer->device_count = 0;
+    sml_buffer->currlog_time = 0;
 }
 
 void sml_add_device(char* dev_path)
@@ -266,10 +266,10 @@ void sml_add_device(char* dev_path)
     if(0 == len) return;
     if(len >= MAX_DEVICE_PATH) return;
 
-    if(smart_buffer->device_count >= MAX_DEVICE_COUNT) return;
+    if(sml_buffer->device_count >= MAX_DEVICE_COUNT) return;
 
     // add new device
-    devptr = &smart_buffer->device_list[smart_buffer->device_count];
+    devptr = &sml_buffer->device_list[sml_buffer->device_count];
 
     sml_reset_device(devptr);
 
@@ -279,28 +279,28 @@ void sml_add_device(char* dev_path)
     sprintf(devptr->physical_path, "/dev/%s", physicalDev);
 
     // assign path to smart file
-    sprintf(devptr->currlog_file, "%s%s_smart.bin", smart_dir, physicalDev);
-    sprintf(devptr->currlog_backup, "%s%s_smart.bak", smart_dir, physicalDev);
+    sprintf(devptr->currlog_file, "%s%s_smart.bin", sml_data_dir, physicalDev);
+    sprintf(devptr->currlog_backup, "%s%s_smart.bak", sml_data_dir, physicalDev);
 
-    sprintf(devptr->fulllog_file, "%s%s_log.bin", smart_dir, physicalDev);
-    sprintf(devptr->fulllog_backup, "%s%s_log.bak", smart_dir, physicalDev);
+    sprintf(devptr->fulllog_file, "%s%s_log.bin", sml_data_dir, physicalDev);
+    sprintf(devptr->fulllog_backup, "%s%s_log.bak", sml_data_dir, physicalDev);
 
-    sprintf(devptr->config_file, "%s%s_cfg.bin", smart_dir, physicalDev);
-    sprintf(devptr->config_backup, "%s%s_cfg.bak", smart_dir, physicalDev);
+    sprintf(devptr->config_file, "%s%s_cfg.bin", sml_data_dir, physicalDev);
+    sprintf(devptr->config_backup, "%s%s_cfg.bak", sml_data_dir, physicalDev);
 
     // search existed Smart device by smart file path
-    for (i = 0; i < smart_buffer->device_count; ++ i) {
-        if(0 == strcmp(devptr->currlog_file, smart_buffer->device_list[i].currlog_file)) {
-            devptr->smart_pool_idx = smart_buffer->device_list[i].smart_pool_idx;
+    for (i = 0; i < sml_buffer->device_count; ++ i) {
+        if(0 == strcmp(devptr->currlog_file, sml_buffer->device_list[i].currlog_file)) {
+            devptr->smart_pool_idx = sml_buffer->device_list[i].smart_pool_idx;
             break;
         }
     }
 
     // no existed device
-    if (i == smart_buffer->device_count) {
+    if (i == sml_buffer->device_count) {
         // allocate a buffer for new device
-        devptr->smart_pool_idx = smart_buffer->allocated_pool_count;
-        ++ smart_buffer->allocated_pool_count;
+        devptr->smart_pool_idx = sml_buffer->allocated_pool_count;
+        ++ sml_buffer->allocated_pool_count;
 
         // load device config
         sml_load_config(devptr);
@@ -317,22 +317,22 @@ void sml_add_device(char* dev_path)
 
     // debug
     char str_buf[128];
-    sprintf(str_buf, "Add Index %u", smart_buffer->device_count);
+    sprintf(str_buf, "Add Index %u", sml_buffer->device_count);
     sml_dump_device(devptr, str_buf);
     // end debug
 
-    ++ smart_buffer->device_count;
+    ++ sml_buffer->device_count;
 
-    if(1 == smart_buffer->device_count) {
-        pthread_create(&smart_thread, NULL, update_smart_func, NULL);
+    if(1 == sml_buffer->device_count) {
+        pthread_create(&sml_thread_func, NULL, update_smart_func, NULL);
     }
 }
 
 void sml_save_all(void)
 {
     uint8_t i;
-    for (i = 0; i < smart_buffer->device_count; ++ i) {
-        sml_save_device(&smart_buffer->device_list[i]);
+    for (i = 0; i < sml_buffer->device_count; ++ i) {
+        sml_save_device(&sml_buffer->device_list[i]);
     }
 }
 
@@ -417,8 +417,8 @@ void update_raw_smart_data(void)
 {
     uint8_t i;
 
-    for (i = 0; i < smart_buffer->device_count; ++ i) {
-        cmn_smart_device* devptr = &smart_buffer->device_list[i];
+    for (i = 0; i < sml_buffer->device_count; ++ i) {
+        cmn_smart_device* devptr = &sml_buffer->device_list[i];
         cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
         if(NULL == dataptr) continue;
 
@@ -439,7 +439,7 @@ void* update_smart_func(void* param)
     while (1) {
 
         sleep(60); // fix this number to create timer 1 minute
-        if(0 == smart_buffer->device_count) continue;
+        if(0 == sml_buffer->device_count) continue;
 
         // Sample more attribute
         ++ internal_count;
@@ -448,17 +448,17 @@ void* update_smart_func(void* param)
             update_raw_smart_data();
         }
 
-        ++ smart_buffer->currlog_time;
+        ++ sml_buffer->currlog_time;
 
         // Check timer save data to file
         uint8_t n_dev;
-        for (n_dev = 0; n_dev < smart_buffer->device_count; ++ n_dev) {
-            devptr  = &smart_buffer->device_list[n_dev];
+        for (n_dev = 0; n_dev < sml_buffer->device_count; ++ n_dev) {
+            devptr  = &sml_buffer->device_list[n_dev];
             dataptr = get_smart_data(devptr->smart_pool_idx);
             if(NULL == dataptr) continue;
 
             // Save current smart
-            if (TIMER_BACKUP_SMART <= smart_buffer->currlog_time) {
+            if (TIMER_BACKUP_SMART <= sml_buffer->currlog_time) {
                 sml_save_currlog(devptr);
             }
 
@@ -497,8 +497,8 @@ void* update_smart_func(void* param)
             }
         } // end of for
 
-        if (TIMER_BACKUP_SMART <= smart_buffer->currlog_time) {
-            smart_buffer->currlog_time = 0;
+        if (TIMER_BACKUP_SMART <= sml_buffer->currlog_time) {
+            sml_buffer->currlog_time = 0;
         }
     } // end of while
 }

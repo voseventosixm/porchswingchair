@@ -14,4 +14,8 @@ bool write_data(const string &name, const U8* buffer, U32 size);
 bool append_data(const string &name, const U8* buffer, U32 size);
 bool read_data(const string &name, U32 offset, U8* buffer, U32 size);
 
+bool is_directory(const string& path);
+bool is_regular_file(const string& path);
+bool read_filelist(const string& root, vector<string>& namelist);
+
 #endif

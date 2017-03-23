@@ -2,3 +2,6 @@
 MAP_ITEM(DEBUG_MODE,     "debugMode",      "false")
 MAP_ITEM(SHMEM_NAME,     "shmemName",      "/dev/shmem0")
 MAP_ITEM(SHMEM_VERSION,  "shmemVersion",   "1")
+MAP_ITEM(BACKUP_PATH,    "backupPath",     "/home/root/devinfo/smartlog/backup")
+MAP_ITEM(BINARY_PATH,    "binaryPath",     "/home/root/devinfo/smartlog/binary")
+MAP_ITEM(LOG_CONFIG,     "logConfig",      "/home/root/devinfo/smartlog/log_config.json")

@@ -17,6 +17,10 @@ struct s_program_config
     string shmem_version;
 
     bool   debug_mode;
+
+    string backup_path;
+    string binary_path;
+    string log_config;
 };
 
 struct s_app_config
