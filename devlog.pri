@@ -17,6 +17,9 @@ HEADERS += \
     app/devlog/logger/logutil.h \
     app/devlog/logger/loghandler.h \
     \
+    app/devlog/loader/loadutil.h \
+    app/devlog/loader/loadhandler.h \
+    \
     app/devlog/vtview/vtview_interface.h \
     app/devlog/vtview/smart_converter.h \
     app/devlog/vtview/smart_interface.h
@@ -31,6 +34,9 @@ SOURCES += \
     \
     app/devlog/logger/logutil.cpp \
     app/devlog/logger/loghandler.cpp \
+    \
+    app/devlog/loader/loadutil.cpp \
+    app/devlog/loader/loadhandler.cpp \
     \
     app/devlog/vtview/vtview_interface.cpp \
     app/devlog/vtview/smart_converter.cpp \

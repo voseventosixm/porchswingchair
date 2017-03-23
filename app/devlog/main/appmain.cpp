@@ -20,6 +20,8 @@ int main(int argc, char** argv)
 
         if (false == init_resource()) { set_error_code(eCannotInitializeResource);  break; }
 
+        if (false == start_load_handler()) { set_error_code(eCannotStartLoadHandler); break; }
+
         if (false == start_log_handler()) { set_error_code(eCannotStartLogHandler); break; }
 
         SHOWMSG("Joining threads");

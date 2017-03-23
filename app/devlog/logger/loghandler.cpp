@@ -11,6 +11,7 @@
 
 #include "logutil.h"
 #include "loghandler.h"
+#include "vtview_interface.h"
 
 static void* log_handler_func(void*);
 
@@ -50,12 +51,14 @@ static void* log_handler_func(void* param)
 
     ASSERT(NULL == param);
 
-    logtask.thread_id = pthread_self();
-    logtask.task_ready = true;
+    logger.thread_id = pthread_self();
+    logger.task_ready = true;
 
     SHOWMSG("Start log_handler_thread");
 
-    while(!logtask.request_stop)
+
+
+    while(!logger.request_stop)
     {
         SHOWMSG("logging smart");
 

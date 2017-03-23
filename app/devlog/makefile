@@ -18,10 +18,12 @@ OUTPUT_DIR = $(SOLUTION_DIR)/output
 APP_SRC_DIR = $(SOLUTION_DIR)/app/devlog
 MAIN = $(APP_SRC_DIR)/main
 LOGGER = $(APP_SRC_DIR)/logger
+LOADER = $(APP_SRC_DIR)/loader
 VTVIEW = $(APP_SRC_DIR)/vtview
 
 APP_INCLUDE_DIRS += -I $(MAIN)/
 APP_INCLUDE_DIRS += -I $(LOGGER)/
+APP_INCLUDE_DIRS += -I $(LOADER)/
 APP_INCLUDE_DIRS += -I $(VTVIEW)/
 
 APP_SRC_FILES += $(MAIN)/appconfig.cpp $(MAIN)/appdata.cpp \
@@ -32,6 +34,8 @@ APP_SRC_FILES += $(VTVIEW)/smart_interface.cpp  $(VTVIEW)/smart_converter.cpp \
                  $(VTVIEW)/vtview_interface.cpp 
 
 APP_SRC_FILES += $(LOGGER)/logutil.cpp          $(LOGGER)/loghandler.cpp
+
+APP_SRC_FILES += $(LOADER)/loadutil.cpp         $(LOADER)/loadhandler.cpp
 
 # -------------------------------------------------------
 # Utility modules

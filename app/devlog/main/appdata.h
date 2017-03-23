@@ -15,18 +15,27 @@ struct s_logger_task
     bool request_stop;
 
     pthread_t thread_id;
+};
 
-    void* client;   // Cast to specific client (aws / azure)
+struct s_loader_task
+{
+    bool task_ready;
+    bool request_stop;
+
+    pthread_t thread_id;
 };
 
 struct s_app_task
 {
     s_logger_task logger;
+    s_loader_task loader;
 };
 
 struct s_app_info
 {
     s_shmem_info shmem;
+
+    s_logcmd_queue logcmd;
 };
 
 enum e_operation_code
@@ -65,6 +74,7 @@ s_app_task* get_task_ptr();
 s_app_info* get_info_ptr();
 s_app_config* get_config_ptr();
 s_logger_task* get_logger_task();
+s_loader_task* get_loader_task();
 s_error_stack* get_error_stack();
 
 #define DUMPSTACK() do { \
@@ -75,7 +85,8 @@ s_error_stack* get_error_stack();
 #define APP_DEF_VARS() \
     s_app_data* aptr = get_data_ptr(); \
     s_app_config* conf = get_config_ptr(); \
-    s_logger_task& logtask = get_task_ptr()->logger; \
+    s_logger_task& logger = get_task_ptr()->logger; \
+    s_loader_task& loader = get_task_ptr()->loader; \
     s_program_config& program = conf->program;
 
 #endif

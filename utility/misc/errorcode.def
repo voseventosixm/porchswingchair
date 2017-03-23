@@ -86,10 +86,14 @@ MAP_ITEM(eCannotInitializeShmem,            "Cannot initialize shmem")
 // Error code for devlog
 // ------------------------------------------------------------------------------------
 
-MAP_ITEM(eCannotStartLogHandler,            "Cannot start log handler thread")
-MAP_ITEM(eBinaryPathJsonNotFound,           "Cannot find json config for smartlog binary-path")
-MAP_ITEM(eBackupPathJsonNotFound,           "Cannot find json config for smartlog backup-path")
+MAP_ITEM(eCannotStartLogHandler,            "Cannot start log-handler-thread")
+MAP_ITEM(eCannotStartLoadHandler,           "Cannot start load-handler-thread")
+
+MAP_ITEM(eBinaryPathJsonNotFound,           "Cannot find json config for smartlog-binary-path")
+MAP_ITEM(eBackupPathJsonNotFound,           "Cannot find json config for smartlog-backup-path")
 MAP_ITEM(eConfigFileJsonNotFound,           "Cannot find json config for smartlog-config-file")
+
+MAP_ITEM(eCannotLoadSmartlogData,           "Cannot load smartlog-data to shmem")
 
 // ------------------------------------------------------------------------------------
 // End
