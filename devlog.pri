@@ -4,6 +4,7 @@ CONFIG(DEVLOG)
 
 INCLUDEPATH += app/devlog/main
 INCLUDEPATH += app/devlog/logger
+INCLUDEPATH += app/devlog/loader
 INCLUDEPATH += app/devlog/vtview
 
 HEADERS += \

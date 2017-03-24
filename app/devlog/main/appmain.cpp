@@ -6,6 +6,7 @@
 #include "apptest.h"
 #include "appconfig.h"
 #include "loghandler.h"
+#include "loadhandler.h"
 
 #include "appmain.h"
 

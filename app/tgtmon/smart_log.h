@@ -12,8 +12,8 @@ void sml_reset_currlog(cmn_smart_data* dataptr);
 void sml_reset_fulllog(cmn_smart_data* dataptr);
 void sml_reset_device(cmn_smart_device* devptr);
 void sml_reset_config(cmn_smart_config* confptr);
-void smart_att_read_temperature(cmn_smart_data* dataptr);
-void smart_dev_sampling_raw_smart(cmn_smart_device* devptr, uint16_t sampling_rate, bool start_up);
+void sml_sample_temperature(cmn_smart_data* dataptr);
+void smml_sample_smart(cmn_smart_device* devptr, uint16_t samrate, bool start_up);
 
 void sml_initialize(void);
 void sml_add_device(char* dev_path);

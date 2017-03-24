@@ -97,38 +97,25 @@ void sml_reset_currlog(cmn_smart_data* dataptr)
 
 void sml_reset_fulllog(cmn_smart_data* dataptr)
 {
-    /*
-    // method memset
-    cmn_smart_fulllog* p_log = &ptr_smart_data->fulllog;
-    memset(p_log, 0, sizeof(cmn_smart_fulllog));
-    p_log->sampling_rate = DEFAULT_SMART_LOG_SAMPLING_RATE;
-    p_log->current_entry = MAX_LOG_COUNT - 1;
-    p_log->fulllog_time  = 0;
-
-    // at default no log is added so set all attribute ID is 0
-    ptr_smart_data->fulllog_counter = 0;
-    p_log = &ptr_smart_data->fulllog_buffer[0];
-    memset(p_log, 0, sizeof(cmn_smart_fulllog));
-    */
-
     // method set index
     dataptr->fulllog_counter = 0;
-    cmn_smart_fulllog* flogptr    = &dataptr->fulllog;
-    cmn_smart_fulllog* p_active = &dataptr->fulllog_buffer[0];
-    uint16_t nEntry;
-    for(nEntry = 0; nEntry < MAX_LOG_COUNT; ++ nEntry) {
-        flogptr->entry_list[nEntry].index      = 0;
-        flogptr->entry_list[nEntry].time_stamp = 0;
+    cmn_smart_fulllog* logptr    = &dataptr->fulllog;
+    cmn_smart_fulllog* bufptr = &dataptr->fulllog_buffer[0];
 
-        p_active->entry_list[nEntry].index      = 0;
-        p_active->entry_list[nEntry].time_stamp = 0;
+    uint16_t i;
+    for(i = 0; i < MAX_LOG_COUNT; ++ i) {
+        logptr->entry_list[i].index      = 0;
+        logptr->entry_list[i].time_stamp = 0;
+
+        bufptr->entry_list[i].index      = 0;
+        bufptr->entry_list[i].time_stamp = 0;
     }
 
-    flogptr->current_entry = MAX_LOG_COUNT - 1;
-    flogptr->fulllog_time  = 0;
+    logptr->fulllog_time  = 0;
+    logptr->current_entry = MAX_LOG_COUNT - 1;
 
-    p_active->current_entry = MAX_LOG_COUNT - 1;
-    p_active->fulllog_time  = 0;
+    bufptr->fulllog_time  = 0;
+    bufptr->current_entry = MAX_LOG_COUNT - 1;
 }
 
 void sml_reset_device(cmn_smart_device* devptr)
@@ -152,7 +139,7 @@ void sml_reset_config(cmn_smart_config* confptr)
     confptr->sampling_rate = DEFAULT_SMART_LOG_SAMPLING_RATE;
 }
 
-void smart_dev_sampling_raw_smart(cmn_smart_device* devptr, uint16_t sampling_rate, bool start_up)
+void smml_sample_smart(cmn_smart_device* devptr, uint16_t samrate, bool start_up)
 {
     unsigned char buf[512];
     int rawfd;
@@ -163,7 +150,7 @@ void smart_dev_sampling_raw_smart(cmn_smart_device* devptr, uint16_t sampling_ra
     if(NULL == dataptr) return;
 
     if(true == start_up) {
-        sampling_rate = 0;
+        samrate = 0;
         dataptr->currlog.raw_counter = 0;
     }
 
@@ -176,14 +163,14 @@ void smart_dev_sampling_raw_smart(cmn_smart_device* devptr, uint16_t sampling_ra
     }
 
     // Power on hour
-    rawptr->acc.curr_power += sampling_rate;
+    rawptr->acc.curr_power += samrate;
     if (rawptr->acc.curr_power >= 60) {
         rawptr->power_hour.raw_low += (rawptr->acc.curr_power / 60);
         rawptr->acc.curr_power %= 60;
     }
 
     // temperature
-    smart_att_read_temperature(dataptr);// The function smart_device_manager_add also update temp for initiate
+    sml_sample_temperature(dataptr);// The function smart_device_manager_add also update temp for initiate
 
     // read more attribute from e-mmc chip
     rawfd = open(devptr->physical_path, O_RDWR | O_RSYNC);
@@ -399,7 +386,7 @@ void sml_load_currlog(cmn_smart_device* devptr)
         sml_reset_currlog(dataptr);
     }
 
-    smart_dev_sampling_raw_smart(devptr, 0, true);
+    smml_sample_smart(devptr, 0, true);
 }
 
 void sml_load_config(cmn_smart_device* devptr)
@@ -422,7 +409,7 @@ void update_raw_smart_data(void)
         cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
         if(NULL == dataptr) continue;
 
-        smart_dev_sampling_raw_smart(devptr, TIMER_READ_INTERNAL_SMART, false);
+        smml_sample_smart(devptr, TIMER_READ_INTERNAL_SMART, false);
     }
 }
 
@@ -520,7 +507,7 @@ void update_device_fulllog(cmn_smart_data* dataptr, bool start_up)
     ++ dataptr->fulllog_counter;
 }
 
-void smart_att_read_temperature(cmn_smart_data* dataptr)
+void sml_sample_temperature(cmn_smart_data* dataptr)
 {
     dataptr->currlog.raw_attr.temperature.raw_low = 25;// Read temperature sensor.
 }
