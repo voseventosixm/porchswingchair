@@ -22,6 +22,8 @@ struct s_vtview_info
 
 bool load_vtview_info();
 bool save_vtview_info();
+bool save_vtview_currlog();
+bool save_vtview_fulllog();
 
 bool get_vtview_info(s_vtview_info& info);
 

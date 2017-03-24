@@ -48,15 +48,21 @@ bool stop_log_handler()
 
 static void process_log_command(e_logcmd_code code)
 {
-    bool status = true;
+    bool status = false;
+
     switch(code)
     {
-        case LOGCMD_SAVE_CURRLOG: save_vtview_currlog(); break;
-        case LOGCMD_SAVE_FULLLOG: save_vtview_fulllog(); break;
-        default: status = false; break;
-    }
+        case LOGCMD_SAVE_CURRLOG:
+            status = save_vtview_currlog();
+            set_error_if(!status, eCannotSaveCurrLog); break;
 
-    set_error_if(!status, eUnknownLogCommandCode);
+        case LOGCMD_SAVE_FULLLOG:
+            status = save_vtview_fulllog();
+            set_error_if(!status, eCannotSaveFullLog); break;
+
+        default:
+            set_error_code(eUnknownLogCommandCode); break;
+    }
 
     return status;
 }

@@ -66,22 +66,21 @@ static void* load_handler_func(void* param)
 
     while(!logger.request_stop)
     {
-        sleep(1);
-
         curr_counter++;
-        full_counter++;
-
         if (curr_counter >= program.freq_currlog)
         {
             curr_counter = 0;
             push_command(info->logcmd, LOGCMD_SAVE_CURRLOG);
         }
 
+        full_counter++;
         if (full_counter >= program.freq_fulllog)
         {
             full_counter = 0;
             push_command(info->logcmd, LOGCMD_SAVE_FULLLOG);
         }
+
+        sleep(1);
     }
 
     return NULL;

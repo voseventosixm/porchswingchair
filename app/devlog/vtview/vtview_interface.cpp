@@ -5,7 +5,6 @@
 #include "appdata.h"
 
 #include "smart_interface.h"
-
 #include "vtview_interface.h"
 
 static void build_vtview_param(s_vtview_param& param);
@@ -63,6 +62,24 @@ bool save_vtview_info()
     save_smartlog_config(param);
     save_smartlog_binary(param);
     save_smartlog_backup(param);
+
+    return true;
+}
+
+bool save_vtview_currlog()
+{
+    s_vtview_param param;
+    build_vtview_param(param);
+
+
+    return true;
+}
+
+bool save_vtview_fulllog()
+{
+    s_vtview_param param;
+    build_vtview_param(param);
+
 
     return true;
 }

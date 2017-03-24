@@ -94,6 +94,9 @@ MAP_ITEM(eBackupPathJsonNotFound,           "Cannot find json config for smartlo
 MAP_ITEM(eConfigFileJsonNotFound,           "Cannot find json config for smartlog-config-file")
 
 MAP_ITEM(eCannotLoadSmartlogData,           "Cannot load smartlog-data to shmem")
+MAP_ITEM(eCannotSaveCurrLog,                "Cannot save curr-log")
+MAP_ITEM(eCannotSaveFullLog,                "Cannot save full-log")
+MAP_ITEM(eUnknownLogCommandCode,            "Unknown log-command-code")
 
 // ------------------------------------------------------------------------------------
 // End
