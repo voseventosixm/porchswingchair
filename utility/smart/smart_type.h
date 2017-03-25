@@ -25,7 +25,7 @@
 
 #define MAX_BUFFER_COUNT 2
 
-// #define ATTR_NAND_ENDURANCE          3000
+#define ATTR_NAND_ENDURANCE          3000
 
 #define DEFAULT_SMART_LOG_SAMPLING_RATE  1
 #define TIMER_READ_INTERNAL_SMART        1
