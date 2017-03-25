@@ -16,13 +16,56 @@
 #include "shmem_util.h"
 #include "smart_log.h"
 
+static void* update_smart_func(void* param);
+
+// reset
+static void sml_initialize(void);
+static void sml_reset_data(cmn_smart_data* dataptr);
+static void sml_reset_currlog(cmn_smart_data* dataptr);
+static void sml_reset_fulllog(cmn_smart_data* dataptr);
+static void sml_reset_device(cmn_smart_device* devptr);
+static void sml_reset_config(cmn_smart_config* confptr);
+static void sml_reset_fulllog_object(cmn_smart_fulllog* logptr);
+
+// load/save smartlog
+static void sml_add_device(char* devpath);
+static void sml_load_config(cmn_smart_device* devptr);
+static void sml_load_currlog(cmn_smart_device* devptr);
+static void sml_load_fulllog(cmn_smart_device* devptr);
+
+static void sml_save_all(void);
+static void sml_save_device(const cmn_smart_device* devptr);
+static void sml_save_currlog(const cmn_smart_device* devptr);
+static void sml_save_fulllog(const cmn_smart_device* devptr);
+
+// sampling smart attributes
+static void sml_update_rawsmart(void);
+static void sml_sample_temperature(cmn_smart_data* dataptr);
+static void sml_sample_attribute(cmn_smart_device* devptr, uint16_t samrate, bool startup);
+
+// utilities
+static bool load_file(char* buffer, uint32_t size, const char* load, const char* backup);
+static void init_attribute(cmn_raw_smart* rawptr);
+static bool get_device_name(const char* devpath, char* devname);
+static void sml_update_fulllog(cmn_smart_data* dataptr, bool startup);
+
+// mmc ioctl
+static int mmc_read_extcsd(int fd, unsigned char* buf);
+static int mmc_read_erasecount(int fd, unsigned char* buf);
+static int mmc_send_cmd(int fd, int cmd, int arg, int wflag, unsigned char* buff);
+
+// debug
+static void dbg_dump_buffer(void* buffer, uint32_t size);
+static void dbg_dump_device(const cmn_smart_device* devptr, char* header);
+
 static pthread_t sml_thread_func;
 static cmn_smart_buffer* sml_buffer;
 static const char sml_location[128] = "/home/root/";
 
-static void* update_smart_func(void* param);
+// --------------------------------------------------------
+// smatlog interface
+// --------------------------------------------------------
 
-// interface function
 void smartlog_intialize(void)
 {
     DO_SKIP();
