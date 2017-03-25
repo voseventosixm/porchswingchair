@@ -4,31 +4,37 @@
 #include "smart_type.h"
 
 // interface to the outside world
-void smart_intialize(void);
-void smart_load_data(char* dev_path);
+void smartlog_intialize(void);
+void smartlog_load_data(char* dev_path);
 
+// load/save smartlog
+void sml_add_device(char* devpath);
+void sml_load_config(cmn_smart_device* devptr);
+void sml_load_currlog(cmn_smart_device* devptr);
+void sml_load_fulllog(cmn_smart_device* devptr);
+
+void sml_save_all(void);
+void sml_save_device(const cmn_smart_device* devptr);
+void sml_save_currlog(const cmn_smart_device* devptr);
+void sml_save_fulllog(const cmn_smart_device* devptr);
+
+// reset
+void sml_initialize(void);
 void sml_reset_data(cmn_smart_data* dataptr);
 void sml_reset_currlog(cmn_smart_data* dataptr);
 void sml_reset_fulllog(cmn_smart_data* dataptr);
 void sml_reset_device(cmn_smart_device* devptr);
 void sml_reset_config(cmn_smart_config* confptr);
+
+// sampling smart attributes
 void sml_sample_temperature(cmn_smart_data* dataptr);
-void smml_sample_smart(cmn_smart_device* devptr, uint16_t samrate, bool start_up);
+void sml_sample_attribute(cmn_smart_device* devptr, uint16_t samrate, bool startup);
 
-void sml_initialize(void);
-void sml_add_device(char* dev_path);
-void sml_save_device(const cmn_smart_device* devptr);
-void sml_save_all(void);
-void sml_load_config(cmn_smart_device* devptr);
-void sml_load_currlog(cmn_smart_device* devptr);
-void sml_load_fulllog(cmn_smart_device* devptr);
-void sml_save_currlog(const cmn_smart_device* devptr);
-void sml_save_fulllog(const cmn_smart_device* devptr);
-
+// utilities
 bool load_file(char* buffer, uint32_t size, const char* load, const char* backup);
 
-void update_attr_id(cmn_raw_smart* rawptr);
-bool build_device_path(const char* devpath, char* devname);
+void init_attribute_id(cmn_raw_smart* rawptr);
+bool get_device_name(const char* devpath, char* devname);
 void update_raw_smart_data(void);
 void update_device_fulllog(cmn_smart_data* dataptr, bool start_up);
 

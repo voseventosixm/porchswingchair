@@ -502,7 +502,7 @@ tgtadm_err tgt_device_create(int tid, int dev_type, uint64_t lun, char *params,
 		switch (token) {
 		case Opt_path:
 			path = match_strdup(&args[0]);
-            if(NULL != path) smart_load_data(path);
+            if(NULL != path) smartlog_load_data(path);
 			break;
 		case Opt_bstype:
 			bstype = match_strdup(&args[0]);

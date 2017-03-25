@@ -623,7 +623,7 @@ int main(int argc, char **argv)
 	sd_notify(0, "READY=1\nSTATUS=Starting event loop...");
 #endif
 
-    smart_intialize();
+    smartlog_intialize();
 
 	event_loop();
 

@@ -20,10 +20,10 @@ static void* update_smart_func(void* param);
 
 static pthread_t sml_thread_func;
 static cmn_smart_buffer* sml_buffer;
-static const char sml_data_dir[128] = "/home/root/";
+static const char sml_location[128] = "/home/root/";
 
 // interface function
-void smart_intialize(void)
+void smartlog_intialize(void)
 {
     DO_SKIP();
     sml_buffer = (cmn_smart_buffer*)shmem_get(sizeof(cmn_smart_buffer));
@@ -33,14 +33,14 @@ void smart_intialize(void)
     smart_tgt_create(sml_buffer);
 }
 
-void smart_load_data(char* dev_path)
+void smartlog_load_data(char* dev_path)
 {
     DO_SKIP();
     sml_add_device(dev_path);
 }
 
 // internal function
-bool build_device_path(const char* devpath, char* devname)
+bool get_device_name(const char* devpath, char* devname)
 {
     cmn_phys_token token_list[] = { {"mmcblk",   0,   7, NUMBER},
                                   //{"sd"    , 'a', 'z', CHARACTER},
@@ -85,7 +85,7 @@ void sml_reset_currlog(cmn_smart_data* dataptr)
 {
     cmn_raw_smart* rawptr = &dataptr->currlog.raw_attr;
     memset(rawptr, 0, sizeof(cmn_raw_smart));
-    update_attr_id(rawptr);
+    init_attribute_id(rawptr);
     rawptr->endurance.raw_low = ATTR_NAND_ENDURANCE;
 
     dataptr->currlog.raw_counter = 0;
@@ -139,7 +139,7 @@ void sml_reset_config(cmn_smart_config* confptr)
     confptr->sampling_rate = DEFAULT_SMART_LOG_SAMPLING_RATE;
 }
 
-void smml_sample_smart(cmn_smart_device* devptr, uint16_t samrate, bool start_up)
+void sml_sample_attribute(cmn_smart_device* devptr, uint16_t samrate, bool startup)
 {
     unsigned char buf[512];
     int rawfd;
@@ -149,7 +149,7 @@ void smml_sample_smart(cmn_smart_device* devptr, uint16_t samrate, bool start_up
     cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
     if(NULL == dataptr) return;
 
-    if(true == start_up) {
+    if(true == startup) {
         samrate = 0;
         dataptr->currlog.raw_counter = 0;
     }
@@ -158,7 +158,7 @@ void smml_sample_smart(cmn_smart_device* devptr, uint16_t samrate, bool start_up
     cmn_raw_smart* rawptr = &dataptr->currlog.raw_attr;
 
     // up date smart only effect at start up
-    if(true == start_up) {
+    if(true == startup) {
         rawptr->power_count.raw_low += 1;
     }
 
@@ -241,14 +241,14 @@ void sml_initialize()
     sml_buffer->currlog_time = 0;
 }
 
-void sml_add_device(char* dev_path)
+void sml_add_device(char* devpath)
 {
     uint16_t len;
     uint8_t i;
-    char physicalDev[32];
+    char devname[32];
     cmn_smart_device* devptr;
 
-    len = strlen(dev_path);
+    len = strlen(devpath);
 
     if(0 == len) return;
     if(len >= MAX_DEVICE_PATH) return;
@@ -260,31 +260,35 @@ void sml_add_device(char* dev_path)
 
     sml_reset_device(devptr);
 
-    if (false == build_device_path(dev_path, physicalDev)) return;
+    if (false == get_device_name(devpath, devname)) return;
+
     // assign path
-    sprintf(devptr->device_path, "%s", dev_path);
-    sprintf(devptr->physical_path, "/dev/%s", physicalDev);
+    sprintf(devptr->device_path, "%s", devpath);
+    sprintf(devptr->physical_path, "/dev/%s", devname);
 
     // assign path to smart file
-    sprintf(devptr->currlog_file, "%s%s_smart.bin", sml_data_dir, physicalDev);
-    sprintf(devptr->currlog_backup, "%s%s_smart.bak", sml_data_dir, physicalDev);
+    sprintf(devptr->currlog_file, "%s%s_smart.bin", sml_location, devname);
+    sprintf(devptr->currlog_backup, "%s%s_smart.bak", sml_location, devname);
 
-    sprintf(devptr->fulllog_file, "%s%s_log.bin", sml_data_dir, physicalDev);
-    sprintf(devptr->fulllog_backup, "%s%s_log.bak", sml_data_dir, physicalDev);
+    sprintf(devptr->fulllog_file, "%s%s_log.bin", sml_location, devname);
+    sprintf(devptr->fulllog_backup, "%s%s_log.bak", sml_location, devname);
 
-    sprintf(devptr->config_file, "%s%s_cfg.bin", sml_data_dir, physicalDev);
-    sprintf(devptr->config_backup, "%s%s_cfg.bak", sml_data_dir, physicalDev);
+    sprintf(devptr->config_file, "%s%s_cfg.bin", sml_location, devname);
+    sprintf(devptr->config_backup, "%s%s_cfg.bak", sml_location, devname);
 
     // search existed Smart device by smart file path
-    for (i = 0; i < sml_buffer->device_count; ++ i) {
-        if(0 == strcmp(devptr->currlog_file, sml_buffer->device_list[i].currlog_file)) {
+    for (i = 0; i < sml_buffer->device_count; ++ i)
+    {
+        if(0 == strcmp(devptr->currlog_file, sml_buffer->device_list[i].currlog_file))
+        {
             devptr->smart_pool_idx = sml_buffer->device_list[i].smart_pool_idx;
             break;
         }
     }
 
     // no existed device
-    if (i == sml_buffer->device_count) {
+    if (i == sml_buffer->device_count)
+    {
         // allocate a buffer for new device
         devptr->smart_pool_idx = sml_buffer->allocated_pool_count;
         ++ sml_buffer->allocated_pool_count;
@@ -332,8 +336,8 @@ void sml_save_device(const cmn_smart_device* devptr)
 void sml_save_fulllog(const cmn_smart_device* devptr)
 {
     cmn_smart_data* dataptr;
-    dataptr = get_smart_data(devptr->smart_pool_idx);
 
+    dataptr = get_smart_data(devptr->smart_pool_idx);
     if(NULL == dataptr) return;
 
     cmn_smart_fulllog* flogptr = get_device_fulllog(dataptr, NULL);
@@ -386,7 +390,7 @@ void sml_load_currlog(cmn_smart_device* devptr)
         sml_reset_currlog(dataptr);
     }
 
-    smml_sample_smart(devptr, 0, true);
+    sml_sample_attribute(devptr, 0, true);
 }
 
 void sml_load_config(cmn_smart_device* devptr)
@@ -409,7 +413,7 @@ void update_raw_smart_data(void)
         cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
         if(NULL == dataptr) continue;
 
-        smml_sample_smart(devptr, TIMER_READ_INTERNAL_SMART, false);
+        sml_sample_attribute(devptr, TIMER_READ_INTERNAL_SMART, false);
     }
 }
 
@@ -512,7 +516,7 @@ void sml_sample_temperature(cmn_smart_data* dataptr)
     dataptr->currlog.raw_attr.temperature.raw_low = 25;// Read temperature sensor.
 }
 
-void update_attr_id(cmn_raw_smart* rawptr)
+void init_attribute_id(cmn_raw_smart* rawptr)
 {
     #define MAP_ITEM(name,index,code) rawptr->name.attr_id = code;
     #include "smart_attr.h"
