@@ -16,11 +16,11 @@
 #include "shmem_util.h"
 #include "smart_log.h"
 
-static void* update_smart_func(void* param);
-
 static pthread_t sml_thread_func;
 static cmn_smart_buffer* sml_buffer;
 static const char sml_location[128] = "/home/root/";
+
+static void* update_smart_func(void* param);
 
 // interface function
 void smartlog_intialize(void)
@@ -37,41 +37,6 @@ void smartlog_load_data(char* dev_path)
 {
     DO_SKIP();
     sml_add_device(dev_path);
-}
-
-// internal function
-bool get_device_name(const char* devpath, char* devname)
-{
-    cmn_phys_token token_list[] = { {"mmcblk",   0,   7, NUMBER},
-                                  //{"sd"    , 'a', 'z', CHARACTER},
-                                  //{"sg"    ,   0,   7, NUMBER},
-                                  };
-
-    uint8_t i, token_count = sizeof(token_list) / sizeof(cmn_phys_token);
-
-    for (i = 0; i < token_count; ++ i) {
-        cmn_phys_token* item = &token_list[i];
-
-        if (strstr(devpath, item->token) != NULL) {
-            char key;
-            for (key = item->sequence_start; key <= item->sequence_end; ++ key) {
-                // Make physical name
-                if(NUMBER == item->enum_type)
-                    sprintf(devname, "%s%u", item->token, key);
-                else if(CHARACTER == item->enum_type)
-                    sprintf(devname, "%s%c", item->token, key);
-                else break;
-    
-                // Search physical name in the path
-                if (strstr(devpath, devname) != NULL) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    devname[0] = '\0';
-    return false;
 }
 
 // --------------------------------------------------------
@@ -104,7 +69,7 @@ void sml_reset_currlog(cmn_smart_data* dataptr)
 
     memset(rawptr, 0, sizeof(*rawptr));
 
-    init_attribute_id(rawptr);
+    init_attribute(rawptr);
     rawptr->endurance.raw_low = ATTR_NAND_ENDURANCE;
 
     logptr->raw_counter = 0;
@@ -236,164 +201,15 @@ void sml_add_device(char* devpath)
     }
 }
 
-// --------------------------------------------------------
-// save functions
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// sampling functions
-// --------------------------------------------------------
-
-void sml_sample_attribute(cmn_smart_device* devptr, uint16_t samrate, bool startup)
+void sml_load_config(cmn_smart_device* devptr)
 {
-    unsigned char buf[512];
-    int rawfd;
-    int tmpval;
-    int ret;
-
-    cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
-    if(NULL == dataptr) return;
-
-    if(true == startup) {
-        samrate = 0;
-        dataptr->currlog.raw_counter = 0;
-    }
-
-    // update smart attribute
-    cmn_raw_smart* rawptr = &dataptr->currlog.raw_attr;
-
-    // up date smart only effect at start up
-    if(true == startup) {
-        rawptr->power_count.raw_low += 1;
-    }
-
-    // Power on hour
-    rawptr->acc.curr_power += samrate;
-    if (rawptr->acc.curr_power >= 60) {
-        rawptr->power_hour.raw_low += (rawptr->acc.curr_power / 60);
-        rawptr->acc.curr_power %= 60;
-    }
-
-    // temperature
-    sml_sample_temperature(dataptr);// The function smart_device_manager_add also update temp for initiate
-
-    // read more attribute from e-mmc chip
-    rawfd = open(devptr->physical_path, O_RDWR | O_RSYNC);
-    if (rawfd >= 0) {
-        ret = mmc_read_extcsd(rawfd, buf);
-        if (0 == ret) {
-            // GetValue from eMMC Register
-            rawptr->prog_sector.raw_low = GET_U32(buf, 302);
-            rawptr->life_typea.raw_low  = GET_U08(buf, 268);
-            rawptr->life_typeb.raw_low  = GET_U08(buf, 269);
-            rawptr->extcsd_ver.raw_low  = GET_U08(buf, 192);
-
-            tmpval = (rawptr->life_typea.raw_low % 11) * 10; rawptr->life_left.raw_low = (tmpval) ? (110 - tmpval) : 0;
-            tmpval = (rawptr->life_typeb.raw_low % 11) * 10; rawptr->spare_block.raw_low = (tmpval) ? (110 - tmpval) : 0;
-
-            ret = mmc_read_erasecount(rawfd, buf);
-            if (0 == ret) {
-                // GetValue from VendorCommand: Value = 0x26E901EB; Buffer = [0] 26 [1] E9 [2] 01 [3] EB
-                rawptr->max_erase.raw_low = VC_GET_U32(buf, 4);
-                rawptr->ave_erase.raw_low = VC_GET_U32(buf, 8);
-
-                rawptr->max_mlc.raw_low = VC_GET_U32(buf,  4);
-                rawptr->ave_mlc.raw_low = VC_GET_U32(buf,  8);
-                rawptr->max_slc.raw_low = VC_GET_U32(buf, 12);
-                rawptr->ave_slc.raw_low = VC_GET_U32(buf, 16);
-            }
-        }
-
-        close(rawfd);
-    }
-
-    // copy current smart to active buffer
-    uint8_t next_index = (dataptr->currlog.raw_counter + 1) % MAX_BUFFER_COUNT;
-    cmn_raw_smart *nextptr = &dataptr->currlog.raw_buffer[next_index];
-
-    uint16_t attr_count = (sizeof(cmn_raw_smart) - sizeof(cmn_raw_acc)) / sizeof(cmn_raw_attr);
-    cmn_raw_attr* srcptr = (cmn_raw_attr*)&dataptr->currlog.raw_attr;
-    cmn_raw_attr* dstptr = (cmn_raw_attr*)nextptr;
-
-    // copy raw attribute
-    uint16_t  i;
-    for (i = 0; i < attr_count; i ++)
+    if(false == load_file((char*)&devptr->smart_config,
+                          sizeof(devptr->smart_config),
+                          devptr->config_file,
+                          devptr->config_backup))
     {
-        do {
-            memcpy(dstptr, srcptr, sizeof(cmn_raw_attr));
-        } while (0 != memcmp(srcptr, dstptr, sizeof(cmn_raw_attr)));
-        ++ dstptr;
-        ++ srcptr;
+        sml_reset_config(&devptr->smart_config);
     }
-
-    // copy accum
-    do {
-        memcpy(dstptr, srcptr, sizeof(cmn_raw_acc));
-    } while (0 != memcmp(srcptr, dstptr, sizeof(cmn_raw_acc)));
-
-    ++ dataptr->currlog.raw_counter;
-}
-
-// --------------------------------------------------------
-// utilities
-// --------------------------------------------------------
-
-void sml_save_all(void)
-{
-    uint8_t i;
-    for (i = 0; i < sml_buffer->device_count; ++ i) {
-        sml_save_device(&sml_buffer->device_list[i]);
-    }
-}
-
-void sml_save_device(const cmn_smart_device* devptr)
-{
-    sml_save_currlog(devptr);
-    sml_save_fulllog(devptr);
-}
-
-void sml_save_fulllog(const cmn_smart_device* devptr)
-{
-    cmn_smart_data* dataptr;
-
-    dataptr = get_smart_data(devptr->smart_pool_idx);
-    if(NULL == dataptr) return;
-
-    cmn_smart_fulllog* flogptr = get_device_fulllog(dataptr, NULL);
-    save_file((char*)flogptr,
-              sizeof(cmn_smart_fulllog),
-              devptr->fulllog_file,
-              devptr->fulllog_backup);
-}
-
-void sml_load_fulllog(cmn_smart_device* devptr)
-{
-    cmn_smart_data* dataptr;
-    dataptr = get_smart_data(devptr->smart_pool_idx);
-
-    if(false == load_file((char*)&dataptr->fulllog,
-                          sizeof(cmn_smart_fulllog),
-                          devptr->fulllog_file,
-                          devptr->fulllog_backup))
-    {
-        sml_reset_fulllog(dataptr);
-    } else {
-        sml_update_fulllog(dataptr, true);
-    }
-}
-
-void sml_save_currlog(const cmn_smart_device* devptr)
-{
-    cmn_smart_data* dataptr;
-    dataptr = get_smart_data(devptr->smart_pool_idx);
-
-    if(NULL == dataptr) return;
-
-    cmn_raw_smart* clogptr = get_device_currlog(dataptr, NULL);
-    save_file((char*)clogptr,
-              sizeof(cmn_raw_smart),
-              devptr->currlog_file,
-              devptr->currlog_backup);
 }
 
 void sml_load_currlog(cmn_smart_device* devptr)
@@ -412,22 +228,172 @@ void sml_load_currlog(cmn_smart_device* devptr)
     sml_sample_attribute(devptr, 0, true);
 }
 
-void sml_load_config(cmn_smart_device* devptr)
+void sml_load_fulllog(cmn_smart_device* devptr)
 {
-    if(false == load_file((char*)&devptr->smart_config,
-                          sizeof(devptr->smart_config),
-                          devptr->config_file,
-                          devptr->config_backup))
+    cmn_smart_data* dataptr;
+    dataptr = get_smart_data(devptr->smart_pool_idx);
+
+    if(false == load_file((char*)&dataptr->fulllog,
+                          sizeof(cmn_smart_fulllog),
+                          devptr->fulllog_file,
+                          devptr->fulllog_backup))
     {
-        sml_reset_config(&devptr->smart_config);
+        sml_reset_fulllog(dataptr);
+    } else {
+        sml_update_fulllog(dataptr, true);
     }
+}
+
+// --------------------------------------------------------
+// save functions
+// --------------------------------------------------------
+
+void sml_save_all(void)
+{
+    uint8_t i;
+    for (i = 0; i < sml_buffer->device_count; ++ i) {
+        sml_save_device(&sml_buffer->device_list[i]);
+    }
+}
+
+void sml_save_device(const cmn_smart_device* devptr)
+{
+    sml_save_currlog(devptr);
+    sml_save_fulllog(devptr);
+}
+
+void sml_save_currlog(const cmn_smart_device* devptr)
+{
+    cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
+    if(NULL == dataptr) return;
+
+    cmn_raw_smart* clogptr = get_device_currlog(dataptr, NULL);
+    save_file((char*)clogptr,
+              sizeof(cmn_raw_smart),
+              devptr->currlog_file,
+              devptr->currlog_backup);
+}
+
+void sml_save_fulllog(const cmn_smart_device* devptr)
+{
+    cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
+    if(NULL == dataptr) return;
+
+    cmn_smart_fulllog* flogptr = get_device_fulllog(dataptr, NULL);
+    save_file((char*)flogptr,
+              sizeof(cmn_smart_fulllog),
+              devptr->fulllog_file,
+              devptr->fulllog_backup);
+}
+
+// --------------------------------------------------------
+// sampling functions
+// --------------------------------------------------------
+
+void sml_sample_temperature(cmn_smart_data* dataptr)
+{
+    dataptr->currlog.raw_attr.temperature.raw_low = 25;// Read temperature sensor.
+}
+
+void sml_sample_attribute(cmn_smart_device* devptr, uint16_t samrate, bool startup)
+{
+    unsigned char buf[512];
+    int rawfd, tmpval, ret;
+
+    int smtsize = sizeof(cmn_raw_smart);
+    int accsize = sizeof(cmn_raw_acc);
+    int attsize = sizeof(cmn_raw_attr);
+    int attcnt = (smtsize - accsize) / attsize;
+
+    cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
+    if(NULL == dataptr) return;
+
+    cmn_smart_currlog* logptr = &dataptr->currlog;
+
+    if(true == startup) {
+        samrate = 0;
+        logptr->raw_counter = 0;
+    }
+
+    // update smart attribute
+    cmn_raw_smart* rawptr = &logptr->raw_attr;
+
+    // up date smart only effect at start up
+    if(true == startup) {
+        rawptr->power_count.raw_low += 1;
+    }
+
+    // Power on hour
+    rawptr->acc.curr_power += samrate;
+    if (rawptr->acc.curr_power >= 60) {
+        rawptr->power_hour.raw_low += (rawptr->acc.curr_power / 60);
+        rawptr->acc.curr_power %= 60;
+    }
+
+    // temperature
+    sml_sample_temperature(dataptr);// The function smart_device_manager_add also update temp for initiate
+
+    // read more attribute from e-mmc chip
+    rawfd = open(devptr->physical_path, O_RDWR | O_RSYNC);
+    if (rawfd >= 0)
+    {
+        ret = mmc_read_extcsd(rawfd, buf);
+        if (0 == ret)
+        {
+            // GetValue from eMMC Register
+            rawptr->prog_sector.raw_low = GET_U32(buf, 302);
+            rawptr->life_typea.raw_low  = GET_U08(buf, 268);
+            rawptr->life_typeb.raw_low  = GET_U08(buf, 269);
+            rawptr->extcsd_ver.raw_low  = GET_U08(buf, 192);
+
+            tmpval = (rawptr->life_typea.raw_low % 11) * 10; rawptr->life_left.raw_low = (tmpval) ? (110 - tmpval) : 0;
+            tmpval = (rawptr->life_typeb.raw_low % 11) * 10; rawptr->spare_block.raw_low = (tmpval) ? (110 - tmpval) : 0;
+
+            ret = mmc_read_erasecount(rawfd, buf);
+            if (0 == ret)
+            {
+                // GetValue from VendorCommand: Value = 0x26E901EB; Buffer = [0] 26 [1] E9 [2] 01 [3] EB
+                rawptr->max_erase.raw_low = VC_GET_U32(buf, 4);
+                rawptr->ave_erase.raw_low = VC_GET_U32(buf, 8);
+
+                rawptr->max_mlc.raw_low = VC_GET_U32(buf,  4);
+                rawptr->ave_mlc.raw_low = VC_GET_U32(buf,  8);
+                rawptr->max_slc.raw_low = VC_GET_U32(buf, 12);
+                rawptr->ave_slc.raw_low = VC_GET_U32(buf, 16);
+            }
+        }
+
+        close(rawfd);
+    }
+
+    // copy current smart to active buffer
+    uint8_t bufidx = (logptr->raw_counter + 1) % MAX_BUFFER_COUNT;
+    cmn_raw_attr* src = (cmn_raw_attr*)&logptr->raw_attr;
+    cmn_raw_attr* dst = (cmn_raw_attr*)&logptr->raw_buffer[bufidx];
+
+    // copy raw attributes
+    uint16_t i;
+    for (i = 0; i < attcnt; i ++)
+    {
+        do { memcpy(dst, src, attsize); }
+        while (0 != memcmp(src, dst, attsize));
+
+        ++ src; ++ dst;
+    }
+
+    // copy accumulator
+    do { memcpy(dst, src, accsize); }
+    while (0 != memcmp(src, dst, accsize));
+
+    ++ logptr->raw_counter;
 }
 
 void sml_update_rawsmart(void)
 {
     uint8_t i;
 
-    for (i = 0; i < sml_buffer->device_count; ++ i) {
+    for (i = 0; i < sml_buffer->device_count; ++ i)
+    {
         cmn_smart_device* devptr = &sml_buffer->device_list[i];
         cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
         if(NULL == dataptr) continue;
@@ -436,106 +402,59 @@ void sml_update_rawsmart(void)
     }
 }
 
-void* update_smart_func(void* param)
+// --------------------------------------------------------
+// utilities
+// --------------------------------------------------------
+bool get_device_name(const char* devpath, char* devname)
 {
-    uint16_t att_idx;
-    cmn_smart_device* devptr;
-    cmn_smart_data* dataptr;
-    cmn_smart_attr *attrptr;
-    cmn_raw_smart  *rawptr;
+    cmn_phys_token token_list[] = { {"mmcblk",   0,   7, NUMBER},
+                                  //{"sd"    , 'a', 'z', CHARACTER},
+                                  //{"sg"    ,   0,   7, NUMBER},
+                                  };
 
-    uint8_t internal_count = 0;
+    uint8_t i, token_count = sizeof(token_list) / sizeof(cmn_phys_token);
 
-    while (1) {
+    for (i = 0; i < token_count; ++ i) {
+        cmn_phys_token* item = &token_list[i];
 
-        sleep(60); // fix this number to create timer 1 minute
-        if(0 == sml_buffer->device_count) continue;
+        if (strstr(devpath, item->token) != NULL) {
+            char key;
+            for (key = item->sequence_start; key <= item->sequence_end; ++ key) {
+                // Make physical name
+                if(NUMBER == item->enum_type)
+                    sprintf(devname, "%s%u", item->token, key);
+                else if(CHARACTER == item->enum_type)
+                    sprintf(devname, "%s%c", item->token, key);
+                else break;
 
-        // Sample more attribute
-        ++ internal_count;
-        if (TIMER_READ_INTERNAL_SMART <= internal_count) {
-            internal_count = 0;
-            sml_update_rawsmart();
-        }
-
-        ++ sml_buffer->currlog_time;
-
-        // Check timer save data to file
-        uint8_t n_dev;
-        for (n_dev = 0; n_dev < sml_buffer->device_count; ++ n_dev) {
-            devptr  = &sml_buffer->device_list[n_dev];
-            dataptr = get_smart_data(devptr->smart_pool_idx);
-            if(NULL == dataptr) continue;
-
-            // Save current smart
-            if (TIMER_BACKUP_SMART <= sml_buffer->currlog_time) {
-                sml_save_currlog(devptr);
+                // Search physical name in the path
+                if (strstr(devpath, devname) != NULL) {
+                    return true;
+                }
             }
-
-            ++ dataptr->fulllog.fulllog_time;
-            if (dataptr->fulllog.fulllog_time >= devptr->smart_config.sampling_rate) {
-                uint32_t lastSequence = dataptr->fulllog.entry_list[dataptr->fulllog.current_entry].index;
-
-                uint16_t log_index = (dataptr->fulllog.current_entry + 1) % MAX_LOG_COUNT;
-
-                // copy current smart to log
-                memset(&dataptr->fulllog.entry_list[log_index], 0, sizeof(dataptr->fulllog.entry_list[0]));
-
-                // header
-                dataptr->fulllog.entry_list[log_index].time_stamp = dataptr->fulllog.fulllog_time;
-                dataptr->fulllog.entry_list[log_index].index      = lastSequence + 1;
-
-                att_idx = 0;
-                attrptr = &dataptr->fulllog.entry_list[log_index].attr_list[0];
-                rawptr = &dataptr->currlog.raw_attr;
-
-                #define MAP_ITEM(name,index,code) \
-                    attrptr[att_idx].attr_id   = rawptr->name.attr_id; \
-                    attrptr[att_idx].value     = rawptr->name.raw_low; \
-                    attrptr[att_idx].raw_value = rawptr->name.raw_low; \
-                    ++ att_idx;
-
-                #include "smart_attr.h"
-                #undef MAP_ITEM
-
-                dataptr->fulllog.fulllog_time = 0;
-                dataptr->fulllog.current_entry = log_index;
-
-                sml_update_fulllog(dataptr, false);
-
-                sml_save_fulllog(devptr);
-            }
-        } // end of for
-
-        if (TIMER_BACKUP_SMART <= sml_buffer->currlog_time) {
-            sml_buffer->currlog_time = 0;
         }
-    } // end of while
+    }
+
+    devname[0] = '\0';
+    return false;
 }
 
-void sml_update_fulllog(cmn_smart_data* dataptr, bool start_up)
+void sml_update_fulllog(cmn_smart_data* dataptr, bool startup)
 {
-    uint32_t next_idx;
-    cmn_smart_fulllog* flogptr;
-
-    if(true == start_up) {
+    if(true == startup)
+    {
         dataptr->fulllog_counter = 0;
     }
 
-    next_idx = ((dataptr->fulllog_counter + 1) % MAX_BUFFER_COUNT);
-    flogptr = &dataptr->fulllog_buffer[next_idx];
-    memcpy(flogptr, &dataptr->fulllog, sizeof(cmn_smart_fulllog));
+    uint32_t bufidx = ((dataptr->fulllog_counter + 1) % MAX_BUFFER_COUNT);
+    cmn_smart_fulllog* logptr = &dataptr->fulllog_buffer[bufidx];
+    memcpy(logptr, &dataptr->fulllog, sizeof(cmn_smart_fulllog));
 
     // update next buffer
     ++ dataptr->fulllog_counter;
 }
 
-void sml_sample_temperature(cmn_smart_data* dataptr)
-{
-    dataptr->currlog.raw_attr.temperature.raw_low = 25;// Read temperature sensor.
-}
-
-void init_attribute_id(cmn_raw_smart* rawptr)
+void init_attribute(cmn_raw_smart* rawptr)
 {
     #define MAP_ITEM(name,index,code) rawptr->name.attr_id = code;
     #include "smart_attr.h"
@@ -562,6 +481,10 @@ bool load_file(char* buffer, uint32_t size, const char* load, const char* backup
 
     return rc;
 }
+
+// --------------------------------------------------------
+// emmc utilities
+// --------------------------------------------------------
 
 int mmc_send_cmd(int fd, int cmd, int arg, int wflag, unsigned char* buffer)
 {
@@ -607,13 +530,17 @@ int mmc_read_erasecount(int fd, unsigned char* buf)
     return 0;
 }
 
+// --------------------------------------------------------
+// debug utilities
+// --------------------------------------------------------
+
 void dbg_dump_buffer(void* buffer, uint32_t size)
 {
-    FILE *dump_file;
-    dump_file = fopen("/home/root/dump.txt", "ab");
-    if (NULL != dump_file) {
-        fwrite(buffer, size, 1, dump_file);
-        fclose(dump_file);
+    FILE *fileptr = fopen("/home/root/dump.txt", "ab");
+    if (NULL != fileptr)
+    {
+        fwrite(buffer, size, 1, fileptr);
+        fclose(fileptr);
    }
 }
 
@@ -665,3 +592,92 @@ void dbg_dump_device(const cmn_smart_device* devptr, char* header)
         fclose(fptr);
     }
 }
+
+// --------------------------------------------------------
+// static utilities
+// --------------------------------------------------------
+
+void* update_smart_func(void* param)
+{
+    uint16_t att_idx;
+
+    uint8_t loop_count = 0;
+
+    while (1)
+    {
+        sleep(60); // fix this number to create timer 1 minute
+        if(0 == sml_buffer->device_count) continue;
+
+        // Sample more attribute
+        ++ loop_count;
+        if (TIMER_READ_INTERNAL_SMART <= loop_count)
+        {
+            loop_count = 0;
+            sml_update_rawsmart();
+        }
+
+        ++ sml_buffer->currlog_time;
+
+        // Check timer save data to file
+        uint8_t i;
+        for (i = 0; i < sml_buffer->device_count; ++ i)
+        {
+            cmn_smart_attr *attrptr;
+            cmn_raw_smart  *rawptr;
+
+            cmn_smart_device* devptr  = &sml_buffer->device_list[i];
+            cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
+            if(NULL == dataptr) continue;
+
+            // Save current smart
+            if (TIMER_BACKUP_SMART <= sml_buffer->currlog_time)
+            {
+                sml_save_currlog(devptr);
+            }
+
+            ++ dataptr->fulllog.fulllog_time;
+            if (dataptr->fulllog.fulllog_time >= devptr->smart_config.sampling_rate)
+            {
+                uint32_t lastSequence = dataptr->fulllog.entry_list[dataptr->fulllog.current_entry].index;
+
+                uint16_t log_index = (dataptr->fulllog.current_entry + 1) % MAX_LOG_COUNT;
+
+                // copy current smart to log
+                memset(&dataptr->fulllog.entry_list[log_index], 0, sizeof(dataptr->fulllog.entry_list[0]));
+
+                // header
+                dataptr->fulllog.entry_list[log_index].time_stamp = dataptr->fulllog.fulllog_time;
+                dataptr->fulllog.entry_list[log_index].index      = lastSequence + 1;
+
+                att_idx = 0;
+                attrptr = &dataptr->fulllog.entry_list[log_index].attr_list[0];
+                rawptr = &dataptr->currlog.raw_attr;
+
+                #define MAP_ITEM(name,index,code) \
+                    attrptr[att_idx].attr_id   = rawptr->name.attr_id; \
+                    attrptr[att_idx].value     = rawptr->name.raw_low; \
+                    attrptr[att_idx].raw_value = rawptr->name.raw_low; \
+                    ++ att_idx;
+
+                #include "smart_attr.h"
+                #undef MAP_ITEM
+
+                dataptr->fulllog.fulllog_time = 0;
+                dataptr->fulllog.current_entry = log_index;
+
+                sml_update_fulllog(dataptr, false);
+
+                sml_save_fulllog(devptr);
+            }
+        } // end of for
+
+        if (TIMER_BACKUP_SMART <= sml_buffer->currlog_time)
+        {
+            sml_buffer->currlog_time = 0;
+        }
+    } // end of while
+}
+
+// --------------------------------------------------------
+// end
+// --------------------------------------------------------

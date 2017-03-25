@@ -28,15 +28,15 @@ void sml_save_currlog(const cmn_smart_device* devptr);
 void sml_save_fulllog(const cmn_smart_device* devptr);
 
 // sampling smart attributes
+void sml_update_rawsmart(void);
 void sml_sample_temperature(cmn_smart_data* dataptr);
 void sml_sample_attribute(cmn_smart_device* devptr, uint16_t samrate, bool startup);
 
 // utilities
 bool load_file(char* buffer, uint32_t size, const char* load, const char* backup);
-void init_attribute_id(cmn_raw_smart* rawptr);
+void init_attribute(cmn_raw_smart* rawptr);
 bool get_device_name(const char* devpath, char* devname);
-void sml_update_rawsmart(void);
-void sml_update_fulllog(cmn_smart_data* dataptr, bool start_up);
+void sml_update_fulllog(cmn_smart_data* dataptr, bool startup);
 
 // mmc ioctl
 int mmc_read_extcsd(int fd, unsigned char* buf);
