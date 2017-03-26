@@ -645,7 +645,7 @@ void dbg_dump_device(const cmn_smart_device* devptr, char* header)
 
 void* sml_thread_function(void* param)
 {
-    uint16_t att_idx;
+    uint16_t attidx;
     uint8_t loop_count = 0;
 
     while (1)
@@ -668,7 +668,7 @@ void* sml_thread_function(void* param)
         for (i = 0; i < sml_buffer->device_count; ++i)
         {
             cmn_raw_smart *rawptr;
-            cmn_smart_attr *attrptr;
+            cmn_smart_attr *attptr;
 
             cmn_smart_device* devptr  = &sml_buffer->device_list[i];
             cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
@@ -685,32 +685,34 @@ void* sml_thread_function(void* param)
             ++ logptr->fulllog_time;
             if (logptr->fulllog_time >= devptr->smart_config.sampling_rate)
             {
-                uint32_t lastSequence = logptr->entry_list[logptr->current_entry].index;
+                uint32_t last_index = logptr->entry_list[logptr->current_entry].index;
 
-                uint16_t log_index = (logptr->current_entry + 1) % MAX_LOG_COUNT;
+                uint16_t next_index = (logptr->current_entry + 1) % MAX_LOG_COUNT;
+
+                cmn_smart_entry* entryptr = &logptr->entry_list[next_index];
 
                 // copy current smart to log
-                memset(&logptr->entry_list[log_index], 0, sizeof(logptr->entry_list[0]));
+                memset(entryptr, 0, sizeof(cmn_smart_entry));
 
                 // header
-                logptr->entry_list[log_index].time_stamp = logptr->fulllog_time;
-                logptr->entry_list[log_index].index      = lastSequence + 1;
+                entryptr->time_stamp = logptr->fulllog_time;
+                entryptr->index      = last_index + 1;
 
-                att_idx = 0;
-                attrptr = &logptr->entry_list[log_index].attr_list[0];
+                attidx = 0;
+                attptr = &entryptr->attr_list[0];
                 rawptr = &dataptr->currlog.raw_attr;
 
                 #define MAP_ITEM(name,index,code) \
-                    attrptr[att_idx].attr_id   = rawptr->name.attr_id; \
-                    attrptr[att_idx].value     = rawptr->name.raw_low; \
-                    attrptr[att_idx].raw_value = rawptr->name.raw_low; \
-                    ++ att_idx;
+                    attptr[attidx].attr_id   = rawptr->name.attr_id; \
+                    attptr[attidx].value     = rawptr->name.raw_low; \
+                    attptr[attidx].raw_value = rawptr->name.raw_low; \
+                    ++ attidx;
 
                 #include "smart_attr.h"
                 #undef MAP_ITEM
 
                 logptr->fulllog_time = 0;
-                logptr->current_entry = log_index;
+                logptr->current_entry = next_index;
 
                 sml_update_fulllog(dataptr, false);
 
