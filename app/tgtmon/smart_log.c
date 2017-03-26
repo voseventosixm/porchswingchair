@@ -16,13 +16,20 @@
 #include "shmem_util.h"
 #include "smart_log.h"
 
-static void* update_smart_func(void* param);
+// smartlog data
+static pthread_t sml_handler;
+static cmn_smart_buffer* sml_buffer;
+static const char* sml_location = "/home/root/";
+
+// smartlog thread-func
+static void* sml_thread_function(void* param);
 
 // reset
-static void sml_initialize(void);
+static void sml_reset_buffer(void);
 static void sml_reset_data(cmn_smart_data* dataptr);
-static void sml_reset_currlog(cmn_smart_data* dataptr);
 static void sml_reset_fulllog(cmn_smart_data* dataptr);
+static void sml_reset_currlog(cmn_smart_data* dataptr);
+
 static void sml_reset_device(cmn_smart_device* devptr);
 static void sml_reset_config(cmn_smart_config* confptr);
 static void sml_reset_fulllog_object(cmn_smart_fulllog* logptr);
@@ -44,9 +51,9 @@ static void sml_sample_temperature(cmn_smart_data* dataptr);
 static void sml_sample_attribute(cmn_smart_device* devptr, uint16_t samrate, bool startup);
 
 // utilities
-static bool load_file(char* buffer, uint32_t size, const char* load, const char* backup);
-static void init_attribute(cmn_raw_smart* rawptr);
-static bool get_device_name(const char* devpath, char* devname);
+static bool sml_load_file(char* buffer, uint32_t size, const char* load, const char* backup);
+static void sml_init_attribute(cmn_raw_smart* rawptr);
+static bool sml_get_device_name(const char* devpath, char* devname);
 static void sml_update_fulllog(cmn_smart_data* dataptr, bool startup);
 
 // mmc ioctl
@@ -58,10 +65,6 @@ static int mmc_send_cmd(int fd, int cmd, int arg, int wflag, unsigned char* buff
 static void dbg_dump_buffer(void* buffer, uint32_t size);
 static void dbg_dump_device(const cmn_smart_device* devptr, char* header);
 
-static pthread_t sml_thread_func;
-static cmn_smart_buffer* sml_buffer;
-static const char sml_location[128] = "/home/root/";
-
 // --------------------------------------------------------
 // smatlog interface
 // --------------------------------------------------------
@@ -71,7 +74,7 @@ void smartlog_intialize(void)
     DO_SKIP();
     sml_buffer = (cmn_smart_buffer*)shmem_get(sizeof(cmn_smart_buffer));
 
-    sml_initialize();
+    sml_reset_buffer();
 
     smart_tgt_create(sml_buffer);
 }
@@ -86,16 +89,17 @@ void smartlog_load_data(char* dev_path)
 // reset functions
 // --------------------------------------------------------
 
-void sml_initialize()
+void sml_reset_buffer()
 {
     uint8_t i;
-    for (i = 0; i < MAX_DEVICE_COUNT; ++ i) {
+    for (i = 0; i < MAX_DEVICE_COUNT; ++ i)
+    {
         sml_reset_device(&sml_buffer->device_list[i]);
     }
 
-    sml_buffer->allocated_pool_count   = 0;
-    sml_buffer->device_count = 0;
     sml_buffer->currlog_time = 0;
+    sml_buffer->device_count = 0;
+    sml_buffer->allocated_pool_count   = 0;
 }
 
 void sml_reset_data(cmn_smart_data* dataptr)
@@ -109,10 +113,9 @@ void sml_reset_currlog(cmn_smart_data* dataptr)
     cmn_smart_currlog* logptr = &dataptr->currlog;
 
     cmn_raw_smart* rawptr = &logptr->raw_attr;
-
     memset(rawptr, 0, sizeof(*rawptr));
 
-    init_attribute(rawptr);
+    sml_init_attribute(rawptr);
     rawptr->endurance.raw_low = ATTR_NAND_ENDURANCE;
 
     logptr->raw_counter = 0;
@@ -184,7 +187,7 @@ void sml_add_device(char* devpath)
 
     sml_reset_device(devptr);
 
-    if (false == get_device_name(devpath, devname)) return;
+    if (false == sml_get_device_name(devpath, devname)) return;
 
     // assign path
     sprintf(devptr->device_path, "%s", devpath);
@@ -240,13 +243,13 @@ void sml_add_device(char* devpath)
 
     if(1 == sml_buffer->device_count)
     {
-        pthread_create(&sml_thread_func, NULL, update_smart_func, NULL);
+        pthread_create(&sml_handler, NULL, sml_thread_function, NULL);
     }
 }
 
 void sml_load_config(cmn_smart_device* devptr)
 {
-    if(false == load_file((char*)&devptr->smart_config,
+    if(false == sml_load_file((char*)&devptr->smart_config,
                           sizeof(devptr->smart_config),
                           devptr->config_file,
                           devptr->config_backup))
@@ -260,7 +263,7 @@ void sml_load_currlog(cmn_smart_device* devptr)
     cmn_smart_data* dataptr;
 
     dataptr = get_smart_data(devptr->smart_pool_idx);
-    if(false == load_file((char*)&dataptr->currlog.raw_attr,
+    if(false == sml_load_file((char*)&dataptr->currlog.raw_attr,
                           sizeof(cmn_raw_smart),
                           devptr->currlog_file,
                           devptr->currlog_backup))
@@ -276,7 +279,7 @@ void sml_load_fulllog(cmn_smart_device* devptr)
     cmn_smart_data* dataptr;
     dataptr = get_smart_data(devptr->smart_pool_idx);
 
-    if(false == load_file((char*)&dataptr->fulllog,
+    if(false == sml_load_file((char*)&dataptr->fulllog,
                           sizeof(cmn_smart_fulllog),
                           devptr->fulllog_file,
                           devptr->fulllog_backup))
@@ -448,7 +451,7 @@ void sml_update_rawsmart(void)
 // --------------------------------------------------------
 // utilities
 // --------------------------------------------------------
-bool get_device_name(const char* devpath, char* devname)
+bool sml_get_device_name(const char* devpath, char* devname)
 {
     cmn_phys_token token_list[] = { {"mmcblk",   0,   7, NUMBER},
                                   //{"sd"    , 'a', 'z', CHARACTER},
@@ -497,14 +500,14 @@ void sml_update_fulllog(cmn_smart_data* dataptr, bool startup)
     ++ dataptr->fulllog_counter;
 }
 
-void init_attribute(cmn_raw_smart* rawptr)
+void sml_init_attribute(cmn_raw_smart* rawptr)
 {
     #define MAP_ITEM(name,index,code) rawptr->name.attr_id = code;
     #include "smart_attr.h"
     #undef MAP_ITEM
 }
 
-bool load_file(char* buffer, uint32_t size, const char* load, const char* backup)
+bool sml_load_file(char* buffer, uint32_t size, const char* load, const char* backup)
 {
     FILE *fptr;
 
@@ -640,10 +643,9 @@ void dbg_dump_device(const cmn_smart_device* devptr, char* header)
 // static utilities
 // --------------------------------------------------------
 
-void* update_smart_func(void* param)
+void* sml_thread_function(void* param)
 {
     uint16_t att_idx;
-
     uint8_t loop_count = 0;
 
     while (1)
@@ -663,13 +665,15 @@ void* update_smart_func(void* param)
 
         // Check timer save data to file
         uint8_t i;
-        for (i = 0; i < sml_buffer->device_count; ++ i)
+        for (i = 0; i < sml_buffer->device_count; ++i)
         {
+            cmn_raw_smart *rawptr;
             cmn_smart_attr *attrptr;
-            cmn_raw_smart  *rawptr;
 
             cmn_smart_device* devptr  = &sml_buffer->device_list[i];
             cmn_smart_data* dataptr = get_smart_data(devptr->smart_pool_idx);
+            cmn_smart_fulllog* logptr = &dataptr->fulllog;
+
             if(NULL == dataptr) continue;
 
             // Save current smart
@@ -678,22 +682,22 @@ void* update_smart_func(void* param)
                 sml_save_currlog(devptr);
             }
 
-            ++ dataptr->fulllog.fulllog_time;
-            if (dataptr->fulllog.fulllog_time >= devptr->smart_config.sampling_rate)
+            ++ logptr->fulllog_time;
+            if (logptr->fulllog_time >= devptr->smart_config.sampling_rate)
             {
-                uint32_t lastSequence = dataptr->fulllog.entry_list[dataptr->fulllog.current_entry].index;
+                uint32_t lastSequence = logptr->entry_list[logptr->current_entry].index;
 
-                uint16_t log_index = (dataptr->fulllog.current_entry + 1) % MAX_LOG_COUNT;
+                uint16_t log_index = (logptr->current_entry + 1) % MAX_LOG_COUNT;
 
                 // copy current smart to log
-                memset(&dataptr->fulllog.entry_list[log_index], 0, sizeof(dataptr->fulllog.entry_list[0]));
+                memset(&logptr->entry_list[log_index], 0, sizeof(logptr->entry_list[0]));
 
                 // header
-                dataptr->fulllog.entry_list[log_index].time_stamp = dataptr->fulllog.fulllog_time;
-                dataptr->fulllog.entry_list[log_index].index      = lastSequence + 1;
+                logptr->entry_list[log_index].time_stamp = logptr->fulllog_time;
+                logptr->entry_list[log_index].index      = lastSequence + 1;
 
                 att_idx = 0;
-                attrptr = &dataptr->fulllog.entry_list[log_index].attr_list[0];
+                attrptr = &logptr->entry_list[log_index].attr_list[0];
                 rawptr = &dataptr->currlog.raw_attr;
 
                 #define MAP_ITEM(name,index,code) \
@@ -705,8 +709,8 @@ void* update_smart_func(void* param)
                 #include "smart_attr.h"
                 #undef MAP_ITEM
 
-                dataptr->fulllog.fulllog_time = 0;
-                dataptr->fulllog.current_entry = log_index;
+                logptr->fulllog_time = 0;
+                logptr->current_entry = log_index;
 
                 sml_update_fulllog(dataptr, false);
 
