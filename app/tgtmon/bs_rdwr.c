@@ -382,7 +382,7 @@ verify:
                     handle_threshold_command(devinfo, scsi_get_in_buffer(cmd));
                 } else if (0xD5 == cmd->scb[4])
                 {
-                    smart_tgt_handle_smart_log_cmd(cmd);
+                    tgt_handle_smartlog(cmd);
                 }
 
                 break;
@@ -438,7 +438,7 @@ verify:
 
 	dprintf("io done %p %x %d %u\n", cmd, cmd->scb[0], ret, length);
 
-    smart_tgt_count_lba(cmd);
+    tgt_update_workload(cmd);
 
 	scsi_set_result(cmd, result);
 

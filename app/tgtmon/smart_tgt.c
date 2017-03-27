@@ -3,13 +3,13 @@
 #include "tgtd.h"
 #include "scsi.h"
 
-void smart_tgt_create(cmn_smart_buffer* buffptr)
+void tgt_init_buffer(cmn_smart_buffer* buffptr)
 {
     DO_SKIP();
     init_smart_buffer(buffptr);
 }
 
-void smart_tgt_count_lba(struct scsi_cmd *cmd)
+void tgt_update_workload(struct scsi_cmd *cmd)
 {
     uint32_t length = 0;
 
@@ -120,7 +120,7 @@ void smart_tgt_count_lba(struct scsi_cmd *cmd)
     }
 }
 
-bool smart_tgt_handle_smart_log_cmd(struct scsi_cmd *cmd)
+bool tgt_handle_smartlog(struct scsi_cmd *cmd)
 {
     char* buffer;
     uint16_t sector_count;
