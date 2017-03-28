@@ -18,9 +18,10 @@ struct s_program_config
     string shmem_name;
     string shmem_version;
 
-    string log_config;
+    string config_path;
     string backup_path;
     string binary_path;
+    string device_path;
 
     unsigned int freq_fulllog; // logging time in seconds
     unsigned int freq_currlog; // logging time in seconds

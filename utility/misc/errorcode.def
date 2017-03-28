@@ -89,9 +89,10 @@ MAP_ITEM(eCannotInitializeShmem,            "Cannot initialize shmem")
 MAP_ITEM(eCannotStartLogHandler,            "Cannot start log-handler-thread")
 MAP_ITEM(eCannotStartLoadHandler,           "Cannot start load-handler-thread")
 
+MAP_ITEM(eDevicePathJsonNotFound,           "Cannot find json config for device-path")
 MAP_ITEM(eBinaryPathJsonNotFound,           "Cannot find json config for smartlog-binary-path")
 MAP_ITEM(eBackupPathJsonNotFound,           "Cannot find json config for smartlog-backup-path")
-MAP_ITEM(eConfigFileJsonNotFound,           "Cannot find json config for smartlog-config-file")
+MAP_ITEM(eConfigPathJsonNotFound,           "Cannot find json config for smartlog-config-path")
 
 MAP_ITEM(eCannotLoadSmartlogData,           "Cannot load smartlog-data to shmem")
 MAP_ITEM(eCannotSaveCurrLog,                "Cannot save curr-log")

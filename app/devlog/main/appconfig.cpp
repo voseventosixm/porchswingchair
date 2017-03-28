@@ -32,9 +32,10 @@ void generate_config(s_program_config &config)
     config.shmem_name = DEF_SHMEM_NAME;
     config.shmem_version = DEF_SHMEM_VERSION;
 
+    config.config_path = DEF_CONFIG_PATH;
     config.backup_path = DEF_BACKUP_PATH;
     config.binary_path = DEF_BINARY_PATH;
-    config.log_config = DEF_LOG_CONFIG;
+    config.device_path = DEF_DEVICE_PATH;
 
     config.freq_currlog = atoi(DEF_FREQ_CURRLOG);
     config.freq_fulllog = atoi(DEF_FREQ_FULLLOG);
@@ -149,9 +150,10 @@ bool parse_program_config()
         RJ_GET(doc, KEY_SHMEM_NAME, conf.shmem_name, eShmemNameJsonNotFound);
         RJ_GET(doc, KEY_SHMEM_VERSION, conf.shmem_version, eShmemVersionJsonNotFound);
         RJ_GET(doc, KEY_DEBUG_MODE, conf.debug_mode, eDebugModeJsonNotFound);
+        RJ_GET(doc, KEY_CONFIG_PATH, conf.config_path, eConfigPathJsonNotFound);
         RJ_GET(doc, KEY_BINARY_PATH, conf.binary_path, eBinaryPathJsonNotFound);
         RJ_GET(doc, KEY_BACKUP_PATH, conf.backup_path, eBackupPathJsonNotFound);
-        RJ_GET(doc, KEY_LOG_CONFIG, conf.log_config, eConfigFileJsonNotFound);
+        RJ_GET(doc, KEY_DEVICE_PATH, conf.device_path, eDevicePathJsonNotFound);
 
         RJ_GET(doc, KEY_FREQ_CURRLOG, conf.freq_currlog, eFreqCurrLogJsonNotFound);
         RJ_GET(doc, KEY_FREQ_FULLLOG, conf.freq_fulllog, eFreqFullLogJsonNotFound);
@@ -186,9 +188,10 @@ void reset_config(s_program_config &conf)
     conf.shmem_name = "";
     conf.shmem_version = "";
 
+    conf.config_path = "";
     conf.backup_path = "";
     conf.binary_path = "";
-    conf.log_config = "";
+    conf.device_path = "";
 
     conf.freq_currlog = 10;
     conf.freq_fulllog = 900;
@@ -205,9 +208,10 @@ string to_string(const s_program_config& conf)
     RJ_ADDSTR(KEY_SHMEM_NAME     ,conf.shmem_name);
     RJ_ADDSTR(KEY_SHMEM_VERSION  ,conf.shmem_version);
     RJ_ADDBLN(KEY_DEBUG_MODE     ,conf.debug_mode);
+    RJ_ADDSTR(KEY_CONFIG_PATH    ,conf.config_path);
     RJ_ADDSTR(KEY_BACKUP_PATH    ,conf.backup_path);
     RJ_ADDSTR(KEY_BINARY_PATH    ,conf.binary_path);
-    RJ_ADDSTR(KEY_LOG_CONFIG     ,conf.log_config);
+    RJ_ADDSTR(KEY_DEVICE_PATH    ,conf.device_path);
     RJ_ADDINT(KEY_FREQ_CURRLOG   , conf.freq_currlog);
     RJ_ADDINT(KEY_FREQ_FULLLOG   , conf.freq_fulllog);
     RJ_STOP();

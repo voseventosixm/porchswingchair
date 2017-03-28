@@ -9,9 +9,17 @@ using namespace std;
 struct s_vtview_param
 {
     void*  memptr;
+    string config_path;
     string backup_path;
     string binary_path;
-    string log_config;
+    string device_path;
+
+public:
+    string config_file;
+    string device_name;
+
+    string currlog_file;
+    string fulllog_file;
 };
 
 struct s_vtview_info
