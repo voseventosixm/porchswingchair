@@ -9,8 +9,8 @@ CONFIG += DEVLOG
 CONFIG += UTILITY
 # CONFIG += AWSPORT
 
-include(devlog.pri)
-# include(devmon.pri)
+# include(devlog.pri)
+include(devmon.pri)
 include(tgtmon.pri)
 include(usblog.pri)
 

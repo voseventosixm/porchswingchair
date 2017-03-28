@@ -6,7 +6,7 @@
 
     "geoipPath" : "/home/root/appdata/common/geodb",
 
-    "cloudConfig" : "../config/cloud_config.json",
-    "deviceConfig" : "../config/device_config.json",
-    "deviceIdentify" : "../config/device_identify.json"
+    "cloudConfig" :    "/home/root/vienna/src/api/cloud/configuration/cloudInfo.json",
+    "deviceConfig" :   "/home/root/vienna/src/api/deviceConfiguration/deviceConfig/deviceConfig.json",
+    "deviceIdentify" : "/home/root/vienna/src/api/cloud/configuration/deviceIdentify/deviceIdentify.json"
 }

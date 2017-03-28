@@ -5,7 +5,7 @@ MAP_ITEM(CLIENT_ID,      "clientID",       "sample_client_id_01")
 MAP_ITEM(THING_NAME,     "thingName",      "Phu_DartTest01")
 MAP_ITEM(ROOTCA_FILE,    "rootCA",         "/home/root/devinfo/cloud/aws/rootca.crt")
 MAP_ITEM(CERT_FILE,      "cert",           "/home/root/devinfo/cloud/aws/cert.pem")
-MAP_ITEM(PRIVKEY_FILE,   "privKey",        "/home/root/devinfo/cloud/aws/privkey.pem")
+MAP_ITEM(PRIVKEY_FILE,   "privateKey",     "/home/root/devinfo/cloud/aws/privkey.pem")
 MAP_ITEM(MQTT_PORT,      "mqttPort",       "8883")
 
 // Device identify keys
