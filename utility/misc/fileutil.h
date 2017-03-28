@@ -3,6 +3,10 @@
 
 #include "stdmacro.h"
 #include "stdheader.h"
+#include "sysheader.h"
+
+typedef unsigned int U32;
+typedef unsigned char U8;
 
 bool read_file(const string& filename, string& json);
 void write_string(const string& filename, const string& content);

@@ -1,0 +1,12 @@
+{
+    "debugMode" : true,
+
+    "shmemName" : "/dev/shmem0",
+    "shmemVersion" : "1",
+
+    "geoipPath" : "/home/root/appdata/common/geodb",
+
+    "cloudConfig" : "../config/cloud_config.json",
+    "deviceConfig" : "../config/device_config.json",
+    "deviceIdentify" : "../config/device_identify.json"
+}

@@ -1,6 +1,7 @@
 #include "stdmacro.h"
 #include "rjaccess.h"
 #include "debuglog.h"
+#include "fileutil.h"
 
 #include "appdata.h"
 #include "apputil.h"

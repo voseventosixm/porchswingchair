@@ -1,0 +1,36 @@
+#This target is to ensure accidental execution of Makefile as a bash script will not execute commands like rm in unexpected directories and exit gracefully.
+.prevent_execution:
+	exit 0
+
+#remove @ for no make command prints
+DEBUG = @
+
+SOLUTION_DIR = ../..
+
+# -------------------------------------------------------
+# AWS IOT SDK
+# -------------------------------------------------------
+IOT_CLIENT_DIR = $(SOLUTION_DIR)/utility/aws
+
+#TLS - mbedtls
+MBEDTLS_DIR = $(IOT_CLIENT_DIR)/external_libs/mbedTLS
+TLS_LIB_DIR = $(MBEDTLS_DIR)/library
+TLS_INCLUDE_DIR = -I $(MBEDTLS_DIR)/include
+EXTERNAL_LIBS += -L$(TLS_LIB_DIR)
+LD_FLAG += -Wl,-rpath,$(TLS_LIB_DIR)
+LD_FLAG += -ldl $(TLS_LIB_DIR)/libmbedtls.a $(TLS_LIB_DIR)/libmbedcrypto.a $(TLS_LIB_DIR)/libmbedx509.a -lpthread -lrt
+
+# -------------------------------------------------------
+# Build Specs
+# -------------------------------------------------------
+MBED_TLS_MAKE_CMD = $(MAKE) -C $(MBEDTLS_DIR)
+
+PRE_MAKE_CMD = $(MBED_TLS_MAKE_CMD)
+
+all:
+	$(PRE_MAKE_CMD)
+	$(POST_MAKE_CMD)
+
+clean:
+	$(MBED_TLS_MAKE_CMD) clean
+
